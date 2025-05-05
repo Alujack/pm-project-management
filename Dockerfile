@@ -31,6 +31,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Permissions
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
 
+# Migrate Database
+RUN php artisan migrate --force
+
 # Expose port 8080
 EXPOSE 8080
 
