@@ -1,34 +1,38 @@
-FROM php:8.2-cli
+# Use official PHP image with necessary extensions
+FROM php:8.2-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    unzip \
-    curl \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
     git \
-    && docker-php-ext-install pdo_mysql zip
-
-# Set working directory
-WORKDIR /app
-
-# Copy app files
-COPY . .
+    curl \
+    zip \
+    unzip \
+    libzip-dev \
+    libonig-dev \
+    libpq-dev \
+    libxml2-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && docker-php-ext-install pdo pdo_pgsql zip mbstring exif pcntl bcmath gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Set working directory
+WORKDIR /var/www
 
-# Generate Laravel key (optional, only if not in env vars)
-# RUN php artisan key:generate
+# Copy existing application files
+COPY . .
 
-# Expose port expected by Railway
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Permissions
+RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
+
+# Expose port 8080
 EXPOSE 8080
 
-# Start Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8080
+# Serve Laravel using PHP's built-in server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
