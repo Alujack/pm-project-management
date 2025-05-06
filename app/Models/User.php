@@ -24,28 +24,29 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verification_token',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
         'gender' => 'string',
-        'systemRole' => 'string', 
+        'systemRole' => 'string',
     ];
 
 
     public function getJWTIdentifier()
     {
-        return $this->getKey(); 
+        return $this->getKey();
     }
 
     public function getJWTCustomClaims()
     {
         return [
-            'role' => $this->systemRole, 
+            'role' => $this->systemRole,
         ];
     }
 
-  
+
     public function ownedProjects()
     {
         return $this->hasMany(Project::class, 'ownerID');
@@ -89,6 +90,6 @@ class User extends Authenticatable implements JWTSubject
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'members', 'userID', 'projectID')
-                    ->withPivot('role');
+            ->withPivot('role');
     }
 }

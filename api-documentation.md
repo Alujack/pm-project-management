@@ -4,7 +4,7 @@
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 ## Authentication
-| `POST` | `/api/auth/register` | Register a new user |
+| `POST` | `/api/auth/register` | Register a new user | (username, email, password)
 | `POST` | `/api/auth/login` | Login to get authentication token |
 | `POST` | `/api/auth/logout` | Logout and invalidate token |
 | `GET`  | `/api/auth/user` | Get current authenticated user details |

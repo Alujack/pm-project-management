@@ -1,0 +1,775 @@
+# API Testing Document
+
+This document provides sample request and response data for testing the project management API endpoints. The examples include authentication, projects, sprints, and various relationship endpoints.
+
+## Table of Contents
+1. [Authentication](#authentication)
+   - [Register](#register)
+   - [Login](#login)
+   - [Refresh Token](#refresh-token)
+   - [Logout](#logout)
+   - [Get User Info](#get-user-info)
+   - [Password Reset](#password-reset)
+   - [Verify Email](#verify-email)
+
+2. [Projects](#projects)
+   - [Get All Projects](#get-all-projects)
+   - [Create Project](#create-project)
+   - [Get Project by ID](#get-project-by-id)
+   - [Update Project](#update-project)
+   - [Delete Project](#delete-project)
+
+3. [Project Relationships](#project-relationships)
+   - [Get Project Issues](#get-project-issues)
+   - [Get Project Sprints](#get-project-sprints)
+   - [Get Project Members](#get-project-members)
+   - [Add Project Member](#add-project-member)
+   - [Remove Project Member](#remove-project-member)
+
+4. [Sprints](#sprints)
+   - [Get All Sprints](#get-all-sprints)
+   - [Create Sprint](#create-sprint)
+   - [Get Sprint by ID](#get-sprint-by-id)
+   - [Update Sprint](#update-sprint)
+   - [Delete Sprint](#delete-sprint)
+   - [Get Sprint Issues](#get-sprint-issues)
+   - [Add Issue to Sprint](#add-issue-to-sprint)
+   - [Remove Issue from Sprint](#remove-issue-from-sprint)
+
+## Authentication
+
+### Register
+
+**Request:**
+```json
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "password_confirmation": "password123",
+  "gender": "male"
+}
+```
+
+**Response:**
+```json
+{
+  "suceess": true,
+  "user": {
+    "id": 1,
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "gender": "male",
+    "email_verification_token": "8cb2237d0679ca88db6464eac60da96345513964",
+    "created_at": "2025-05-02T10:00:00.000000Z",
+    "updated_at": "2025-05-02T10:00:00.000000Z"
+  },
+  "message": "Registration successful. Please check your email to verify your account."
+}
+```
+
+### Login
+
+**Request:**
+```json
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "verified": true
+  },
+  "token_type": "Bearer"
+}
+```
+
+### Refresh Token
+
+**Request:**
+```json
+POST /api/auth/refresh
+Authorization: Bearer [refresh_token]
+```
+
+**Response:**
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "Bearer"
+}
+```
+
+### Logout
+
+**Request:**
+```json
+POST /api/auth/logout
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+### Get User Info
+
+**Request:**
+```json
+GET /api/auth/user
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "gender": "male",
+    "systemRole": "user",
+    "verified": true
+  }
+}
+```
+
+### Password Reset
+
+**Request for Email:**
+```json
+POST /api/auth/password/email
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "current_password123"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Email reset link has been sent to your email"
+}
+```
+
+**Request for Reset:**
+```json
+POST /api/auth/password/reset
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "token": "random60characterstoken",
+  "password": "new_password123",
+  "password_confirmation": "new_password123"
+}
+```
+
+**Response:**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "johndoe",
+    "email": "john.doe@example.com"
+  },
+  "message": "Password reset successfully"
+}
+```
+
+### Verify Email
+
+**Request:**
+```json
+POST /api/auth/email/verify/1/8cb2237d0679ca88db6464eac60da96345513964
+```
+
+**Response:**
+```json
+{
+  "message": "Email verified successfully"
+}
+```
+
+## Projects
+
+### Get All Projects
+
+**Request:**
+```json
+GET /api/projects
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "data retrieve successfully!",
+  "data": [
+    {
+      "id": 1,
+      "name": "Project Alpha"
+    },
+    {
+      "id": 2,
+      "name": "Project Beta"
+    }
+  ]
+}
+```
+
+### Create Project
+
+**Request:**
+```json
+POST /api/projects
+Authorization: Bearer [access_token]
+Content-Type: application/json
+
+{
+  "name": "Project Gamma",
+  "key": "PG",
+  "accessibility": "private",
+  "teamID": 1
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Project created successfully",
+  "data": {
+    "id": 3,
+    "name": "Project Gamma",
+    "key": "PG",
+    "accessibility": "private",
+    "teamID": 1,
+    "ownerID": 1,
+    "created_at": "2025-05-02T11:00:00.000000Z",
+    "updated_at": "2025-05-02T11:00:00.000000Z"
+  }
+}
+```
+
+### Get Project by ID
+
+**Request:**
+```json
+GET /api/projects/3
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Data retrieve successfully!",
+  "data": {
+    "id": 3,
+    "name": "Project Gamma",
+    "key": "PG",
+    "accessibility": "private",
+    "teamID": 1,
+    "ownerID": 1,
+    "created_at": "2025-05-02T11:00:00.000000Z",
+    "updated_at": "2025-05-02T11:00:00.000000Z"
+  }
+}
+```
+
+### Update Project
+
+**Request:**
+```json
+PUT /api/projects/3
+Authorization: Bearer [access_token]
+Content-Type: application/json
+
+{
+  "name": "Project Gamma Renamed",
+  "accessibility": "public"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "the data being updated successfully",
+  "data": {
+    "id": 3,
+    "name": "Project Gamma Renamed",
+    "key": "PG",
+    "accessibility": "public",
+    "teamID": 1,
+    "ownerID": 1,
+    "created_at": "2025-05-02T11:00:00.000000Z",
+    "updated_at": "2025-05-02T11:30:00.000000Z"
+  }
+}
+```
+
+### Delete Project
+
+**Request:**
+```json
+DELETE /api/projects/3
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "data deleted successfully"
+}
+```
+
+## Project Relationships
+
+### Get Project Issues
+
+**Request:**
+```json
+GET /api/projects/1/issues
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Data retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "title": "Fix login bug",
+      "description": "Users can't login on mobile devices",
+      "priority": "high",
+      "status": "in_progress",
+      "projectID": 1,
+      "assigneeID": 2,
+      "reporterID": 1,
+      "sprintID": 1,
+      "created_at": "2025-05-01T09:00:00.000000Z",
+      "updated_at": "2025-05-01T14:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "title": "Add dark mode",
+      "description": "Implement dark mode for the application",
+      "priority": "medium",
+      "status": "todo",
+      "projectID": 1,
+      "assigneeID": null,
+      "reporterID": 1,
+      "sprintID": null,
+      "created_at": "2025-05-01T10:00:00.000000Z",
+      "updated_at": "2025-05-01T10:00:00.000000Z"
+    }
+  ]
+}
+```
+
+### Get Project Sprints
+
+**Request:**
+```json
+GET /api/projects/1/sprints
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Data retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": "Sprint 1",
+      "startDate": "2025-05-01",
+      "endDate": "2025-05-14",
+      "sprintGoal": "Complete core features",
+      "ownerID": 1,
+      "created_at": "2025-04-30T09:00:00.000000Z",
+      "updated_at": "2025-04-30T09:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Sprint 2",
+      "startDate": "2025-05-15",
+      "endDate": "2025-05-28",
+      "sprintGoal": "Fix bugs and improve UI",
+      "ownerID": 1,
+      "created_at": "2025-04-30T09:30:00.000000Z",
+      "updated_at": "2025-04-30T09:30:00.000000Z"
+    }
+  ]
+}
+```
+
+### Get Project Members
+
+**Request:**
+```json
+GET /api/projects/1/members
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Successfully retrieved project members",
+  "data": [
+    {
+      "id": 1,
+      "userID": 1,
+      "projectID": 1,
+      "role": "owner",
+      "created_at": "2025-04-30T08:00:00.000000Z",
+      "updated_at": "2025-04-30T08:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "userID": 2,
+      "projectID": 1,
+      "role": "developer",
+      "created_at": "2025-04-30T08:10:00.000000Z",
+      "updated_at": "2025-04-30T08:10:00.000000Z"
+    }
+  ]
+}
+```
+
+### Add Project Member
+
+**Request:**
+```json
+POST /api/projects/1/members
+Authorization: Bearer [access_token]
+Content-Type: application/json
+
+{
+  "userID": 3,
+  "role": "designer"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Member added successfully",
+  "data": {
+    "id": 3,
+    "userID": 3,
+    "projectID": 1,
+    "role": "designer",
+    "created_at": "2025-05-02T12:00:00.000000Z",
+    "updated_at": "2025-05-02T12:00:00.000000Z"
+  }
+}
+```
+
+### Remove Project Member
+
+**Request:**
+```json
+DELETE /api/projects/1/members/3
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Member removed successfully"
+}
+```
+
+## Sprints
+
+### Get All Sprints
+
+**Request:**
+```json
+GET /api/sprints
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sprints retrieved successfully!",
+  "data": [
+    {
+      "id": 1,
+      "name": "Sprint 1",
+      "startDate": "2025-05-01",
+      "endDate": "2025-05-14",
+      "sprintGoal": "Complete core features",
+      "ownerID": 1,
+      "created_at": "2025-04-30T09:00:00.000000Z",
+      "updated_at": "2025-04-30T09:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Sprint 2",
+      "startDate": "2025-05-15",
+      "endDate": "2025-05-28",
+      "sprintGoal": "Fix bugs and improve UI",
+      "ownerID": 1,
+      "created_at": "2025-04-30T09:30:00.000000Z",
+      "updated_at": "2025-04-30T09:30:00.000000Z"
+    }
+  ]
+}
+```
+
+### Get Sprints by Project
+
+**Request:**
+```json
+GET /api/sprints?project_id=1
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sprints retrieved successfully!",
+  "data": [
+    {
+      "id": 1,
+      "name": "Sprint 1",
+      "startDate": "2025-05-01",
+      "endDate": "2025-05-14",
+      "sprintGoal": "Complete core features",
+      "ownerID": 1,
+      "created_at": "2025-04-30T09:00:00.000000Z",
+      "updated_at": "2025-04-30T09:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Sprint 2",
+      "startDate": "2025-05-15",
+      "endDate": "2025-05-28",
+      "sprintGoal": "Fix bugs and improve UI",
+      "ownerID": 1,
+      "created_at": "2025-04-30T09:30:00.000000Z",
+      "updated_at": "2025-04-30T09:30:00.000000Z"
+    }
+  ]
+}
+```
+
+### Create Sprint
+
+**Request:**
+```json
+POST /api/sprints
+Authorization: Bearer [access_token]
+Content-Type: application/json
+
+{
+  "name": "Sprint 3",
+  "startDate": "2025-05-29",
+  "endDate": "2025-06-11",
+  "sprintGoal": "Implement new features",
+  "ownerID": 1
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sprint created successfully!",
+  "data": {
+    "id": 3,
+    "name": "Sprint 3",
+    "startDate": "2025-05-29",
+    "endDate": "2025-06-11",
+    "sprintGoal": "Implement new features",
+    "ownerID": 1,
+    "created_at": "2025-05-02T13:00:00.000000Z",
+    "updated_at": "2025-05-02T13:00:00.000000Z"
+  }
+}
+```
+
+### Get Sprint by ID
+
+**Request:**
+```json
+GET /api/sprints/3
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sprint retrieved successfully!",
+  "data": {
+    "id": 3,
+    "name": "Sprint 3",
+    "startDate": "2025-05-29",
+    "endDate": "2025-06-11",
+    "sprintGoal": "Implement new features",
+    "ownerID": 1,
+    "created_at": "2025-05-02T13:00:00.000000Z",
+    "updated_at": "2025-05-02T13:00:00.000000Z"
+  }
+}
+```
+
+### Update Sprint
+
+**Request:**
+```json
+PUT /api/sprints/3
+Authorization: Bearer [access_token]
+Content-Type: application/json
+
+{
+  "name": "Sprint 3 Updated",
+  "endDate": "2025-06-14",
+  "sprintGoal": "Implement new features and fix bugs"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sprint updated successfully!",
+  "data": {
+    "id": 3,
+    "name": "Sprint 3 Updated",
+    "startDate": "2025-05-29",
+    "endDate": "2025-06-14",
+    "sprintGoal": "Implement new features and fix bugs",
+    "ownerID": 1,
+    "created_at": "2025-05-02T13:00:00.000000Z",
+    "updated_at": "2025-05-02T13:30:00.000000Z"
+  }
+}
+```
+
+### Delete Sprint
+
+**Request:**
+```json
+DELETE /api/sprints/3
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sprint deleted successfully!"
+}
+```
+
+### Get Sprint Issues
+
+**Request:**
+```json
+GET /api/sprints/1/issues
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Issues retrieved successfully!",
+  "data": [
+    {
+      "id": 1,
+      "title": "Fix login bug",
+      "description": "Users can't login on mobile devices",
+      "priority": "high",
+      "status": "in_progress",
+      "projectID": 1,
+      "assigneeID": 2,
+      "reporterID": 1,
+      "sprintID": 1,
+      "created_at": "2025-05-01T09:00:00.000000Z",
+      "updated_at": "2025-05-01T14:00:00.000000Z"
+    },
+    {
+      "id": 3,
+      "title": "Improve search functionality",
+      "description": "Add filters to search",
+      "priority": "low",
+      "status": "todo",
+      "projectID": 1,
+      "assigneeID": 2,
+      "reporterID": 1,
+      "sprintID": 1,
+      "created_at": "2025-05-01T11:00:00.000000Z",
+      "updated_at": "2025-05-01T11:00:00.000000Z"
+    }
+  ]
+}
+```
+
+### Add Issue to Sprint
+
+**Request:**
+```json
+POST /api/sprints/1/issues/2
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Issue added to sprint successfully!"
+}
+```
+
+### Remove Issue from Sprint
+
+**Request:**
+```json
+DELETE /api/sprints/1/issues/2
+Authorization: Bearer [access_token]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Issue removed from sprint successfully!"
+}
+```
