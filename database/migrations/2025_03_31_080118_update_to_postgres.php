@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+
 
 return new class extends Migration {
     /**
@@ -21,6 +23,7 @@ return new class extends Migration {
             $table->enum('systemRole', ['user', 'admin'])->default('user');
             $table->rememberToken()->nullable();
             $table->timestamps();
+            $table->text('email_verification_token')->nullable()->after('email_verified_at');
         });
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
@@ -68,6 +71,21 @@ return new class extends Migration {
             $table->foreignId('issueID')->constrained('issues');
             $table->timestamps();
         });
+        Schema::create('members', function (Blueprint $table) {
+            $table->id();
+            $table->enum('role', ['admin', 'owner', 'developer'])->default('developer');
+            $table->foreignId('userID')->constrained('users');
+            $table->foreignId('projectID')->constrained('projects');
+            $table->timestamps();
+        });
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
 
     }
 
@@ -82,5 +100,7 @@ return new class extends Migration {
         Schema::dropIfExists('statuses');
         Schema::dropIfExists('issues');
         Schema::dropIfExists('comments');
+        Schema::dropIfExists('members');
+        Schema::dropIfExists('sessions');
     }
 };

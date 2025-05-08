@@ -222,7 +222,7 @@ class AuthController extends Controller
         // Define accessible endpoints by role
         $permission = [
             'admin' => ['dashboard', 'users', 'projects'], 
-            'user' => ['dashboard', 'projects', 'reports', 'tasks'],               
+            'user' => ['projects', 'reports', 'tasks'],               
         ];
     
         $userRole = $user->systemRole;
