@@ -12,19 +12,18 @@ class User extends Authenticatable implements JWTSubject
 {
     use Notifiable, HasFactory;
 
+    // In User.php
     protected $fillable = [
         'username',
         'email',
         'password',
         'profileURL',
+        'avatar',
+        'cover_photo',
+        'bio',
+        'phone',
         'gender',
         'systemRole',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'email_verification_token',
     ];
 
     protected $casts = [
@@ -33,6 +32,17 @@ class User extends Authenticatable implements JWTSubject
         'systemRole' => 'string',
     ];
 
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'email_verification_token',
+    ];
+
+
+    public function mentions()
+    {
+        return $this->hasMany(Mention::class);
+    }
 
     public function getJWTIdentifier()
     {

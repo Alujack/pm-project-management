@@ -29,7 +29,7 @@ class Project extends Model
 
     public function members()
     {
-        return $this->hasMany(Member::class, 'projectID');
+        return $this->belongsToMany(User::class, 'members', 'projectID', 'userID')->withPivot('role');
     }
 
     public function issues()

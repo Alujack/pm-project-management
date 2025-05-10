@@ -19,6 +19,10 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('profileURL')->nullable();
+            $table->string('avatar')->nullable(); // New field
+            $table->string('cover_photo')->nullable(); // New field
+            $table->string('bio')->nullable(); // New field
+            $table->string('phone')->nullable(); // New field
             $table->string('gender')->nullable();
             $table->enum('systemRole', ['user', 'admin'])->default('user');
             $table->rememberToken()->nullable();
