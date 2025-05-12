@@ -372,32 +372,32 @@ class AuthController extends Controller
 
             // Return same response format as other auth methods
             return redirect()->away('http://localhost:3000/profile')
-            ->withCookie(
-                Cookie::make(
-                    'access_token',
-                    $accessToken,
-                    60,
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
+                ->withCookie(
+                    Cookie::make(
+                        'access_token',
+                        $accessToken,
+                        60,
+                        '/',
+                        $cookieConfig['domain'],
+                        $cookieConfig['secure'],
+                        $cookieConfig['httpOnly'],
+                        false,
+                        $cookieConfig['sameSite']
+                    )
                 )
-            )
-            ->withCookie(
-                Cookie::make(
-                    'refresh_token',
-                    $refreshToken,
-                    60 * 24 * 30,
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            );
+                ->withCookie(
+                    Cookie::make(
+                        'refresh_token',
+                        $refreshToken,
+                        60 * 24 * 30,
+                        '/',
+                        $cookieConfig['domain'],
+                        $cookieConfig['secure'],
+                        $cookieConfig['httpOnly'],
+                        false,
+                        $cookieConfig['sameSite']
+                    )
+                );
         } catch (\Exception $e) {
             Log::error('Social login error', [
                 'provider' => $provider,
@@ -518,4 +518,6 @@ class AuthController extends Controller
             return response()->json(['message' => 'Could not send verification email'], 500);
         }
     }
+
+    
 }

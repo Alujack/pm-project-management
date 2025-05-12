@@ -61,6 +61,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/users/{user}/avatar', [ProfileController::class, 'updateAvatar']); // Changed from patch to post
         Route::post('/users/{user}/cover-photo', [ProfileController::class, 'updateCoverPhoto']); // Changed from patch to post
         Route::patch('/users/{user}/bio', [ProfileController::class, 'updateBio']);
+Route::get('/user/projects', [ProjectsController::class, 'getUserProjects'])->middleware('auth:api');
     });
 
     //notification

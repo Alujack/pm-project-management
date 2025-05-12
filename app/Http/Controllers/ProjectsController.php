@@ -290,4 +290,28 @@ class ProjectsController extends Controller
             'message' => 'Member removed successfully'
         ], 200);
     } // DELETE /api/projects/{id}/members/{userId}
+
+    public function getUserProjects(Request $request)
+    {
+        // Get the authenticated user's ID
+        $userId = Auth::id();
+
+        // Retrieve all projects that belong to the user
+        $projects = Project::where('ownerID', $userId)->get();
+
+        // Check if the user has any projects
+        if ($projects->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No projects found for the user'
+            ], 404);
+        }
+
+        // Return the projects
+        return response()->json([
+            'success' => true,
+            'message' => 'Projects retrieved successfully',
+            'data' => $projects
+        ], 200);
+    }
 }
