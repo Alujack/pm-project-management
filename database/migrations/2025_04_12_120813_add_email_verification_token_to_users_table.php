@@ -6,14 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->text('email_verification_token')->nullable()->after('email_verified_at');
-        });
+        if (!Schema::hasColumn('users', 'email_verification_token')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->text('email_verification_token')->nullable()->after('email_verified_at');
+            });
+        }
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('email_verification_token');

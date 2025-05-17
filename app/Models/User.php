@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -92,9 +93,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Comment::class, 'userID');
     }
 
-    public function attachments()
+    public function attachments(): HasMany
     {
-        return $this->hasMany(Attachment::class, 'userID');
+        return $this->hasMany(Attachment::class);
     }
 
     public function projects()

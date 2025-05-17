@@ -2,27 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attachment extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'file',
-        'userID',
-        'issueID',
+        'name', 
+        'path', 
+        'mime_type', 
+        'size',
+        'issue_id',
+        'user_id'
     ];
-
-    // Relationships
-    public function user()
+    
+    public function issue(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userID');
+        return $this->belongsTo(Issue::class);
     }
-
-    public function issue()
+    
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Issue::class, 'issueID');
+        return $this->belongsTo(User::class);
     }
-} 
+}

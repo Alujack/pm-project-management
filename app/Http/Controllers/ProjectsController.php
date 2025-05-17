@@ -21,8 +21,8 @@ class ProjectsController extends Controller
             'message' => 'data retrieve successfully!',
             'data' => $projects
         ], 200);
-    }      
-    
+    }
+
     public function store(Request $request)
     {
 
@@ -30,14 +30,14 @@ class ProjectsController extends Controller
             'name' => 'required|string|max:255',
             'key' => 'required|string|max:255|unique:projects,key',
             'accessibility' => 'required|string',
-            'teamID' => 'required|integer',
+            'teamID' => 'integer',
         ]);
 
         $project = Project::create([
             'name' => $validated['name'],
             'key' => $validated['key'],
             'accessibility' => $validated['accessibility'],
-            'teamID' => $validated['teamID'],
+            'teamID' => $validated['teamID'] ?? null,
             'ownerID' => Auth::id(),
         ]);
 
@@ -47,7 +47,7 @@ class ProjectsController extends Controller
             'data' => $project
         ], 201);
     }      // POST /api/projects
-    
+
     public function show(Request $request, $id)
     {
         $project = Project::find($id);
@@ -67,7 +67,7 @@ class ProjectsController extends Controller
             'data' => $project
         ], 200);
     }    // GET /api/projects/{id}
-    
+
     public function update(Request $request, $id)
     {
         // get the data from frontend and validate
@@ -99,7 +99,7 @@ class ProjectsController extends Controller
             'data' => $project
         ], 200);
     }  // PUT /api/projects/{id}
-    
+
     public function destroy($id)
     {
         // find the data in database
@@ -128,14 +128,14 @@ class ProjectsController extends Controller
     {
         // Validate project exists
         $project = Project::find($projectId);
-        
+
         if (!$project) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project not found'
             ], 404);
         }
-        
+
         // Find the issues
         $issues = Issue::where('projectID', $projectId)->get();
 
@@ -153,21 +153,21 @@ class ProjectsController extends Controller
             'data' => $issues
         ], 200);
     }       // GET /api/projects/{id}/issues
-    
+
     public function getProjectSprints($projectId)
     {
         // Validate project exists
         $project = Project::find($projectId);
-        
+
         if (!$project) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project not found'
             ], 404);
         }
-        
+
         // Get sprints related to issues in this project
-        $sprints = Sprint::whereHas('issues', function($query) use ($projectId) {
+        $sprints = Sprint::whereHas('issues', function ($query) use ($projectId) {
             $query->where('projectID', $projectId);
         })->get();
 
@@ -185,19 +185,19 @@ class ProjectsController extends Controller
             'data' => $sprints
         ], 200);
     }      // GET /api/projects/{id}/sprints
-    
+
     public function getProjectMembers($projectId)
     {
         // Validate project exists
         $project = Project::find($projectId);
-        
+
         if (!$project) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project not found'
             ], 404);
         }
-        
+
         $projectMembers = Member::where('projectID', $projectId)->get();
 
         // Optional: check if no members found
@@ -214,77 +214,77 @@ class ProjectsController extends Controller
             'data' => $projectMembers
         ], 200);
     }       // GET /api/projects/{id}/members
-    
+
     public function addProjectMember(Request $request, $projectId)
     {
         // Validate project exists
         $project = Project::find($projectId);
-        
+
         if (!$project) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project not found'
             ], 404);
         }
-        
+
         $validated = $request->validate([
             'userID' => 'required|integer|exists:users,id',
             'role' => 'required|string'
         ]);
-        
+
         // Check if member already exists
         $existingMember = Member::where('projectID', $projectId)
-                              ->where('userID', $validated['userID'])
-                              ->first();
-                              
+            ->where('userID', $validated['userID'])
+            ->first();
+
         if ($existingMember) {
             return response()->json([
                 'success' => false,
                 'message' => 'User is already a member of this project'
             ], 409);
         }
-        
+
         // Create new member
         $member = Member::create([
             'userID' => $validated['userID'],
             'projectID' => $projectId,
             'role' => $validated['role']
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Member added successfully',
             'data' => $member
         ], 201);
     }       // POST /api/projects/{id}/members
-    
+
     public function removeProjectMember($projectId, $userId)
     {
         // Validate project exists
         $project = Project::find($projectId);
-        
+
         if (!$project) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project not found'
             ], 404);
         }
-        
+
         // Find the member
         $member = Member::where('projectID', $projectId)
-                      ->where('userID', $userId)
-                      ->first();
-                      
+            ->where('userID', $userId)
+            ->first();
+
         if (!$member) {
             return response()->json([
                 'success' => false,
                 'message' => 'Member not found in this project'
             ], 404);
         }
-        
+
         // Delete the member
         $member->delete();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Member removed successfully'
@@ -293,25 +293,35 @@ class ProjectsController extends Controller
 
     public function getUserProjects(Request $request)
     {
-        // Get the authenticated user's ID
+        // Get the authenticated user's ID and email
         $userId = Auth::id();
+        $userEmail = Auth::user()->email;
 
-        // Retrieve all projects that belong to the user
-        $projects = Project::where('ownerID', $userId)->get();
+        // Retrieve projects where user is the owner
+        $ownedProjects = Project::where('ownerID', $userId)->get();
+
+        // Retrieve projects where user has accepted invitations
+        $invitedProjects = Project::whereHas('invitations', function ($query) use ($userEmail) {
+            $query->where('email', $userEmail)
+                ->where('accepted', true);
+        })->get();
+
+        // Merge both collections
+        $allProjects = $ownedProjects->merge($invitedProjects)->unique('id');
 
         // Check if the user has any projects
-        if ($projects->isEmpty()) {
+        if ($allProjects->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'No projects found for the user'
-            ], 404);
+            ], 200);
         }
 
         // Return the projects
         return response()->json([
             'success' => true,
             'message' => 'Projects retrieved successfully',
-            'data' => $projects
+            'data' => $allProjects
         ], 200);
     }
 }

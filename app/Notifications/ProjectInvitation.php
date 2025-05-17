@@ -23,8 +23,8 @@ class ProjectInvitation extends Notification
 
     public function toMail($notifiable)
     {
-        $url = url('/api/invitations/verify/' . $this->invitation->token);
-        // $url = config('app.frontend_url') . '/invitations/verify/' . $this->invitation->token;
+        // $url = url('/api/invitations/verify/' . $this->invitation->token);
+        $url = config('app.frontend_url') . '/invitations/verify/' . $this->invitation->token;
 
         return (new MailMessage)
             ->subject('You\'ve Been Invited to Join a Project')

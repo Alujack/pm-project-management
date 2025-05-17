@@ -42,4 +42,13 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'members', 'projectID', 'userID')
                     ->withPivot('role');
     }
+
+    public function invitations(){
+        return $this->hasMany(Invitation::class);
+    }
+
+    public function mentions(){
+        return $this->hasMany(Member::class);
+    }
+
 } 
