@@ -28,26 +28,62 @@ class AuthController extends Controller
         $this->userController = $userController;
     }
 
+    // private function getCookieConfig()
+    // {
+    //     // Get the frontend URL from environment
+    //     $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+
+    //     // Parse the URL to extract the domain
+    //     $urlParts = parse_url($frontendUrl);
+    //     $domain = isset($urlParts['host']) ? $urlParts['host'] : 'localhost';
+
+    //     // For localhost, don't specify domain as it can cause issues
+    //     if ($domain === 'localhost') {
+    //         $domain = '';
+    //     }
+
+    //     return [
+    //         'domain' => $domain,
+    //         'secure' => $urlParts['scheme'] === 'https',
+    //         'sameSite' => $urlParts['scheme'] === 'https' ? 'None' : 'Lax',
+    //         'httpOnly' => false,
+    //     ];
+    // }
+
+    
     private function getCookieConfig()
     {
         // Get the frontend URL from environment
         $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
 
-        // Parse the URL to extract the domain
+        // Parse the URL to extract components
         $urlParts = parse_url($frontendUrl);
         $domain = isset($urlParts['host']) ? $urlParts['host'] : 'localhost';
+        $scheme = $urlParts['scheme'] ?? 'http';
+        $port = isset($urlParts['port']) ? ':' . $urlParts['port'] : '';
 
-        // For localhost, don't specify domain as it can cause issues
+        // Handle different environments
         if ($domain === 'localhost') {
-            $domain = '';
-        }
+            // Local development - don't set domain for localhost
+            // But include port if specified (common for local Next.js)
+            return [
+                'domain' => null,
+                'secure' => false,
+                'sameSite' => 'Lax',
+                'httpOnly' => false,
+            ];
+        } else {
+            // Production or staging environment
+            // For subdomains, you might want to prefix with . (e.g., .example.com)
+            $cookieDomain = (strpos($domain, '.') !== false) ? '.' . $domain : $domain;
 
-        return [
-            'domain' => $domain,
-            'secure' => $urlParts['scheme'] === 'https',
-            'sameSite' => $urlParts['scheme'] === 'https' ? 'None' : 'Lax',
-            'httpOnly' => false,
-        ];
+            return [
+                'domain' => $cookieDomain,
+                'secure' => $scheme === 'https',
+                'sameSite' => $scheme === 'https' ? 'None' : 'Lax',
+                'httpOnly' => false,
+            ];
+        }
     }
 
     public function register(RegisterRequest $request)
