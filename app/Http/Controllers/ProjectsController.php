@@ -324,4 +324,25 @@ class ProjectsController extends Controller
             'data' => $allProjects
         ], 200);
     }
+
+    public function showWithRelations($projectId)
+    {
+        $project = Project::with([
+            'owner',
+            'issues.status',
+            'issues.sprint',
+            'issues.user',
+            'issues.assignee',
+            'issues.assigner',
+        ])->find($projectId);
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project not found'
+            ], 404);
+        }
+
+        return response()->json($project);
+    }
 }

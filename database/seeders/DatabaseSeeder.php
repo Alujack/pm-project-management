@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         DB::table('sprints')->delete();
         DB::table('projects')->delete();
         DB::table('users')->delete();
+        DB::table('invitations')->delete();
 
         // Reset sequences for PostgreSQL
         $tables = ['users', 'projects', 'sprints', 'statuses', 'issues', 'comments', 'mentions', 'attachments'];
@@ -37,7 +38,7 @@ class DatabaseSeeder extends Seeder
                 'username' => 'admin',
                 'email' => 'admin@example.com',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Password168'),
                 'profileURL' => 'https://example.com/profiles/admin',
                 'avatar' => 'avatars/admin.jpg',
                 'cover_photo' => 'covers/admin.jpg',
@@ -53,7 +54,7 @@ class DatabaseSeeder extends Seeder
                 'username' => 'johndoe',
                 'email' => 'john@example.com',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Password168'),
                 'profileURL' => 'https://example.com/profiles/john',
                 'avatar' => 'avatars/john.jpg',
                 'cover_photo' => 'covers/john.jpg',
@@ -69,7 +70,7 @@ class DatabaseSeeder extends Seeder
                 'username' => 'janedoe',
                 'email' => 'jane@example.com',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Password168'),
                 'profileURL' => 'https://example.com/profiles/jane',
                 'avatar' => 'avatars/jane.jpg',
                 'cover_photo' => 'covers/jane.jpg',
@@ -85,7 +86,7 @@ class DatabaseSeeder extends Seeder
                 'username' => 'bobsmith',
                 'email' => 'bob@example.com',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Password168'),
                 'profileURL' => 'https://example.com/profiles/bob',
                 'avatar' => 'avatars/bob.jpg',
                 'cover_photo' => 'covers/bob.jpg',
@@ -101,7 +102,7 @@ class DatabaseSeeder extends Seeder
                 'username' => 'alicegreen',
                 'email' => 'alice@example.com',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Password168'),
                 'profileURL' => 'https://example.com/profiles/alice',
                 'avatar' => 'avatars/alice.jpg',
                 'cover_photo' => 'covers/alice.jpg',
@@ -380,7 +381,7 @@ class DatabaseSeeder extends Seeder
                 'path' => 'attachments/auth-flow.png',
                 'mime_type' => 'image/png',
                 'size' => 1024,
-                'issue_id' => 1,
+                'projectId' => 1,
                 'user_id' => 2,
                 'created_at' => Carbon::now()->subDays(7),
                 'updated_at' => Carbon::now()->subDays(7)
@@ -390,7 +391,7 @@ class DatabaseSeeder extends Seeder
                 'path' => 'attachments/product-schema.pdf',
                 'mime_type' => 'application/pdf',
                 'size' => 2048,
-                'issue_id' => 2,
+                'projectId' => 2,
                 'user_id' => 3,
                 'created_at' => Carbon::now()->subDays(3),
                 'updated_at' => Carbon::now()->subDays(3)
@@ -400,7 +401,7 @@ class DatabaseSeeder extends Seeder
                 'path' => 'attachments/homepage-wireframe.sketch',
                 'mime_type' => 'application/octet-stream',
                 'size' => 4096,
-                'issue_id' => 6,
+                'projectId' => 1,
                 'user_id' => 3,
                 'created_at' => Carbon::now()->subDays(2),
                 'updated_at' => Carbon::now()->subDays(2)
@@ -408,18 +409,60 @@ class DatabaseSeeder extends Seeder
         ];
 
         DB::table('attachments')->insert($attachments);
-        User::create([
-            'username' => 'Admin168',
-            'email' => 'admin@gmail.com',
-            'systemRole' => 'admin',
-            'password' => bcrypt('password'),
-        ]);
-        // Create test users
-        User::create([
-            'username' => 'User168',
-            'email' => 'user@gmail.com',
-            'systemRole' => 'user',
-            'password' => bcrypt('password')
-        ]);
+
+          $invitations = [
+            // Pending invitations (accepted = false)
+            [
+                'email' => 'pending1@example.com',
+                'username' => 'pending_user1',
+                'project_id' => 1,
+                'token' => Str::random(32),
+                'accepted' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'email' => 'pending2@example.com',
+                'username' => null, // No username set yet
+                'project_id' => 2,
+                'token' => Str::random(32),
+                'accepted' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            
+            // Accepted invitations (accepted = true)
+            [
+                'email' => 'janedoe@example.com', // Matches existing user
+                'username' => 'janedoe',
+                'project_id' => 1,
+                'token' => Str::random(32),
+                'accepted' => true,
+                'created_at' => now()->subDays(5),
+                'updated_at' => now()->subDays(2)
+            ],
+            [
+                'email' => 'bobsmith@example.com', // Matches existing user
+                'username' => 'bobsmith',
+                'project_id' => 3,
+                'token' => Str::random(32),
+                'accepted' => true,
+                'created_at' => now()->subDays(10),
+                'updated_at' => now()->subDays(1)
+            ],
+            
+            // Another pending invitation
+            [
+                'email' => 'newuser@example.com',
+                'username' => null,
+                'project_id' => 2,
+                'token' => Str::random(32),
+                'accepted' => false,
+                'created_at' => now()->subDays(3),
+                'updated_at' => now()->subDays(3)
+            ]
+        ];
+
+        DB::table('invitations')->insert($invitations);
     }
 }

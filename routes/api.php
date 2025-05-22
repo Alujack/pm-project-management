@@ -36,6 +36,7 @@ Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderC
 // User routes for mentions
 Route::get('/projects/{projectId}/users-for-mention', [UserController::class, 'getUsersForMention']);
 Route::get('/projects/{projectId}/invited-users', [UserController::class, 'getInvitedUsers']);
+Route::get('/all-users', [UserController::class, 'index']);
 
 // Mention routes
 Route::post('/mentions', [MentionController::class, 'store']);
@@ -62,6 +63,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/projects/{id}/members', [ProjectsController::class, 'addProjectMember']);
         Route::delete('/projects/{id}/members/{userId}', [ProjectsController::class, 'removeProjectMember']);
         Route::get('/user/projects', [ProjectsController::class, 'getUserProjects']);
+        Route::get('/projects/{projectId}/full', [ProjectsController::class, 'showWithRelations']);
 
         // api dashboard
         Route::get('/dashboard/summary', [DashboardController::class, 'dashboardSummary']);
@@ -76,11 +78,8 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('/users/{user}/bio', [ProfileController::class, 'updateBio']);
     });
 
-    // file attachment
-    Route::post('/issues/{issue}/attachments', [AttachmentController::class, 'store']);
-    Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])
-        ->name('attachments.show');
-    Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
+
+
 
     // Sprints api 
     Route::get('/sprints', [SprintsController::class, 'index']);
@@ -93,9 +92,22 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'removeIssue']);
 });
 
+// status
+Route::apiResource('statuses', StatusController::class);
+
+// issue
+Route::apiResource('issues', IssueController::class);
+
 //notification
 Route::post('/invitations', [InvitationController::class, 'store']);
 Route::get('/invitations/verify/{token}', [InvitationController::class, 'verify']);
-   //notification
-Route::post('/invitations', [InvitationController::class, 'store']);
-Route::get('/invitations/verify/{token}', [InvitationController::class, 'verify']);
+// getInvitationsForUser
+Route::get('/invitations', [InvitationController::class, 'getInvitationsForUser']);
+
+
+// file attachment
+Route::post('/attachments', [AttachmentController::class, 'store']);
+Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])
+    ->name('attachments.show');
+Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
+Route::get('/projects/{project}/attachments', [AttachmentController::class, 'index']);

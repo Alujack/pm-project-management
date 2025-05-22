@@ -97,18 +97,16 @@ class UserController extends Controller
 
     /**
      * Get invited users that could be added to a project
+     * make it search projectId in invitations table with field project_id if match select that row from invitations table
      */
     public function getInvitedUsers($projectId)
     {
-        $project = Project::findOrFail($projectId);
 
-
-        // Get users who have been invited but haven't accepted yet
-        $invitedUsers = $project->invitations()
+        $inviatedUsers = Invitation::where('project_id', $projectId)
             ->where('accepted', false)
-            ->select('id', 'email', 'token', 'created_at')
+            ->select('email', 'username', 'project_id', 'accepted')
             ->get();
 
-        return response()->json($invitedUsers);
+        return response()->json($inviatedUsers);
     }
 }

@@ -12,13 +12,13 @@ class Attachment extends Model
         'path', 
         'mime_type', 
         'size',
-        'issue_id',
+        'projectId',
         'user_id'
     ];
     
-    public function issue(): BelongsTo
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(Issue::class);
+        return $this->belongsTo(Project::class);
     }
     
     public function user(): BelongsTo

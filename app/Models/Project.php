@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -40,15 +41,22 @@ class Project extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'members', 'projectID', 'userID')
-                    ->withPivot('role');
+            ->withPivot('role');
     }
 
-    public function invitations(){
+    public function invitations()
+    {
         return $this->hasMany(Invitation::class);
     }
 
-    public function mentions(){
+    public function mentions()
+    {
         return $this->hasMany(Member::class);
     }
 
-} 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class);
+    }
+
+}

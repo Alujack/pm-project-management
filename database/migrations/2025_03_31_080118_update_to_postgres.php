@@ -64,7 +64,7 @@ return new class extends Migration {
             $table->foreignId('projectID')->constrained('projects');
             $table->foreignId('userID')->constrained('users');
             $table->foreignId('assigneeID')->nullable()->constrained('users');
-            $table->foreignId('assignerID')->constrained('users');
+            $table->foreignId('assignerID')->nullable()->constrained('users');
             $table->string('priority')->nullable();
             $table->timestamps();
         });
@@ -90,7 +90,7 @@ return new class extends Migration {
             $table->string('path');
             $table->string('mime_type');
             $table->unsignedBigInteger('size');
-            $table->foreignId('issue_id')->constrained('issues')->onDelete('cascade');
+            $table->foreignId('projectId')->constrained('projects')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->comment('User who uploaded the file');
             $table->timestamps();
         });

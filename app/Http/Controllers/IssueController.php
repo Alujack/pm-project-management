@@ -12,7 +12,7 @@ class IssueController extends Controller
     // Get all issues
     public function index()
     {
-        return Issue::with(['status', 'sprint', 'project', 'creator', 'assignee', 'comments'])
+        return Issue::with(['status', 'sprint', 'project', 'creator', 'assignee', 'comments', 'attachments'])
                    ->get();
     }
 

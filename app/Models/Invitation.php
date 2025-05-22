@@ -10,7 +10,7 @@ class Invitation extends Model
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['email', 'project_id', 'token', 'accepted'];
+    protected $fillable = ['email', 'username', 'project_id', 'token', 'accepted'];
 
     public function project()
     {

@@ -23,6 +23,10 @@ class InvitationController extends Controller
             ->where('project_id', $request->project_id)
             ->first();
 
+        // get username from User model than add to invitation table
+        $user = User::where('email', $request->email)->first();
+        
+
         if ($existingInvitation) {
             // If invitation is already accepted
             if ($existingInvitation->accepted) {
@@ -43,8 +47,10 @@ class InvitationController extends Controller
         }
 
         // Create a new invitation if none exists
+        // add user username to invitation table
         $invitation = Invitation::create([
             'email' => $request->email,
+            'username' => $user->username,
             'project_id' => $request->project_id,
             'token' => Str::random(60),
             'accepted' => false,
@@ -81,4 +87,17 @@ class InvitationController extends Controller
             'success'=>true
         ],200);
     }
+
+    // get all invitations for a user include field id, email
+    public function getInvitationsForUser(Request $request)
+    {
+        $user = $request->user();
+
+        // Get all invitations for the user
+        $invitations = Invitation::where('email', $user->email)
+            ->where('accepted', true)
+            ->get(['id', 'email','username', 'project_id']);
+
+        return response()->json($invitations);
+    } 
 }

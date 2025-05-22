@@ -52,6 +52,10 @@ class Issue extends Model
         return $this->belongsTo(User::class, 'userID');
     }
 
+     public function user() {
+        return $this->belongsTo(User::class, 'userID');
+    }
+
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigneeID');
@@ -67,8 +71,5 @@ class Issue extends Model
         return $this->hasMany(Comment::class, 'issueID');
     }
 
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(Attachment::class);
-    }
+
 } 

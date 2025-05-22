@@ -164,21 +164,15 @@ class AuthController extends Controller
         try {
             $refreshToken = $request->cookie('refresh_token');
 
-            // If cookie is not available, try to get from header
-            if (!$refreshToken && $request->bearerToken()) {
-                $refreshToken = $request->bearerToken();
-            }
-
             if (!$refreshToken) {
-                return response()->json(['message' => 'Refresh token not found'], 401);
+                return response()->json(['message' => 'No refresh token provided'], 401);
             }
 
+            // Use the refresh token to get the user
             $user = JWTAuth::setToken($refreshToken)->toUser();
+            $payload = JWTAuth::setToken($refreshToken)->getPayload();
 
-            if (!$user) {
-                return response()->json(['message' => 'User not found'], 404);
-            }
-
+            // Generate new tokens
             $newAccessToken = JWTAuth::fromUser($user, ['exp' => now()->addDay()->timestamp]);
             $newRefreshToken = JWTAuth::fromUser($user, ['exp' => now()->addDays(30)->timestamp, 'type' => 'refresh']);
 
@@ -519,5 +513,5 @@ class AuthController extends Controller
         }
     }
 
-    
+
 }
