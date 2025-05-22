@@ -18,7 +18,8 @@ class IssueController extends Controller
 
     // Create a new issue
     public function store(Request $request)
-    {
+{
+    try {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -29,11 +30,24 @@ class IssueController extends Controller
             'sprintID' => 'nullable|exists:sprints,id',
             'projectID' => 'required|exists:projects,id',
             'userID' => 'required|exists:users,id',
+            'assigneeID' => 'nullable|exists:users,id',
+            'assignerID' => 'nullable|exists:users,id',
             'priority' => 'required|in:low,medium,high,critical',
         ]);
 
-        return Issue::create($validated);
+        $issue = Issue::create($validated);
+
+        return response()->json([
+            'message' => 'Issue created successfully',
+            'data' => $issue
+        ], 201);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'debug_input' => $request->all()
+        ], 500);
     }
+}
 
     // Get specific issue
     public function show(Issue $issue)
