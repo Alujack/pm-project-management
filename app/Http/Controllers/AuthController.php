@@ -50,40 +50,66 @@ class AuthController extends Controller
     //     ];
     // }
 
-    
+
     private function getCookieConfig()
     {
         // Get the frontend URL from environment
         $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+        $backendUrl = env('APP_URL', 'http://localhost:8000');
 
-        // Parse the URL to extract components
-        $urlParts = parse_url($frontendUrl);
-        $domain = isset($urlParts['host']) ? $urlParts['host'] : 'localhost';
-        $scheme = $urlParts['scheme'] ?? 'http';
-        $port = isset($urlParts['port']) ? ':' . $urlParts['port'] : '';
+        // Parse URLs
+        $frontendParts = parse_url($frontendUrl);
+        $backendParts = parse_url($backendUrl);
 
-        // Handle different environments
-        if ($domain === 'localhost') {
-            // Local development - don't set domain for localhost
-            // But include port if specified (common for local Next.js)
+        $frontendDomain = $frontendParts['host'] ?? 'localhost';
+        $backendDomain = $backendParts['host'] ?? 'localhost';
+        $frontendScheme = $frontendParts['scheme'] ?? 'http';
+        $backendScheme = $backendParts['scheme'] ?? 'http';
+
+        // Check if this is a cross-domain scenario
+        $isCrossDomain = $frontendDomain !== $backendDomain;
+
+        if ($isCrossDomain) {
+            // For cross-domain with HTTPS backend, we can try SameSite=None + Secure
+            if ($backendScheme === 'https') {
+                return [
+                    'use_cookies' => true,
+                    'domain' => null, // Don't set domain for cross-origin
+                    'secure' => true,
+                    'sameSite' => 'None',
+                    'httpOnly' => false,
+                ];
+            } else {
+                // HTTP cross-domain - cookies won't work reliably
+                return [
+                    'use_cookies' => false,
+                    'domain' => null,
+                    'secure' => false,
+                    'sameSite' => 'Lax',
+                    'httpOnly' => false,
+                ];
+            }
+        }
+
+        // Same domain configuration
+        if ($frontendDomain === 'localhost' || $backendDomain === 'localhost') {
             return [
-                'domain' => null,
+                'use_cookies' => true,
+                'domain' => null, // Don't set domain for localhost
                 'secure' => false,
                 'sameSite' => 'Lax',
                 'httpOnly' => false,
             ];
-        } else {
-            // Production or staging environment
-            // For subdomains, you might want to prefix with . (e.g., .example.com)
-            $cookieDomain = (strpos($domain, '.') !== false) ? '.' . $domain : $domain;
-
-            return [
-                'domain' => $cookieDomain,
-                'secure' => $scheme === 'https',
-                'sameSite' => $scheme === 'https' ? 'None' : 'Lax',
-                'httpOnly' => false,
-            ];
         }
+
+        // Production same-domain configuration
+        return [
+            'use_cookies' => true,
+            'domain' => null, // Let browser handle domain
+            'secure' => $frontendScheme === 'https',
+            'sameSite' => $frontendScheme === 'https' ? 'Strict' : 'Lax',
+            'httpOnly' => false,
+        ];
     }
 
     public function register(RegisterRequest $request)
