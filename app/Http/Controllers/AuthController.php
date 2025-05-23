@@ -51,66 +51,66 @@ class AuthController extends Controller
     // }
 
 
-    private function getCookieConfig()
-    {
-        // Get the frontend URL from environment
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
-        $backendUrl = env('APP_URL', 'http://localhost:8000');
+    // private function getCookieConfig()
+    // {
+    //     // Get the frontend URL from environment
+    //     $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+    //     $backendUrl = env('APP_URL', 'http://localhost:8000');
 
-        // Parse URLs
-        $frontendParts = parse_url($frontendUrl);
-        $backendParts = parse_url($backendUrl);
+    //     // Parse URLs
+    //     $frontendParts = parse_url($frontendUrl);
+    //     $backendParts = parse_url($backendUrl);
 
-        $frontendDomain = $frontendParts['host'] ?? 'localhost';
-        $backendDomain = $backendParts['host'] ?? 'localhost';
-        $frontendScheme = $frontendParts['scheme'] ?? 'http';
-        $backendScheme = $backendParts['scheme'] ?? 'http';
+    //     $frontendDomain = $frontendParts['host'] ?? 'localhost';
+    //     $backendDomain = $backendParts['host'] ?? 'localhost';
+    //     $frontendScheme = $frontendParts['scheme'] ?? 'http';
+    //     $backendScheme = $backendParts['scheme'] ?? 'http';
 
-        // Check if this is a cross-domain scenario
-        $isCrossDomain = $frontendDomain !== $backendDomain;
+    //     // Check if this is a cross-domain scenario
+    //     $isCrossDomain = $frontendDomain !== $backendDomain;
 
-        if ($isCrossDomain) {
-            // For cross-domain with HTTPS backend, we can try SameSite=None + Secure
-            if ($backendScheme === 'https') {
-                return [
-                    'use_cookies' => true,
-                    'domain' => null, // Don't set domain for cross-origin
-                    'secure' => true,
-                    'sameSite' => 'None',
-                    'httpOnly' => false,
-                ];
-            } else {
-                // HTTP cross-domain - cookies won't work reliably
-                return [
-                    'use_cookies' => false,
-                    'domain' => null,
-                    'secure' => false,
-                    'sameSite' => 'Lax',
-                    'httpOnly' => false,
-                ];
-            }
-        }
+    //     if ($isCrossDomain) {
+    //         // For cross-domain with HTTPS backend, we can try SameSite=None + Secure
+    //         if ($backendScheme === 'https') {
+    //             return [
+    //                 'use_cookies' => true,
+    //                 'domain' => null, // Don't set domain for cross-origin
+    //                 'secure' => true,
+    //                 'sameSite' => 'None',
+    //                 'httpOnly' => false,
+    //             ];
+    //         } else {
+    //             // HTTP cross-domain - cookies won't work reliably
+    //             return [
+    //                 'use_cookies' => false,
+    //                 'domain' => null,
+    //                 'secure' => false,
+    //                 'sameSite' => 'Lax',
+    //                 'httpOnly' => false,
+    //             ];
+    //         }
+    //     }
 
-        // Same domain configuration
-        if ($frontendDomain === 'localhost' || $backendDomain === 'localhost') {
-            return [
-                'use_cookies' => true,
-                'domain' => null, // Don't set domain for localhost
-                'secure' => false,
-                'sameSite' => 'Lax',
-                'httpOnly' => false,
-            ];
-        }
+    //     // Same domain configuration
+    //     if ($frontendDomain === 'localhost' || $backendDomain === 'localhost') {
+    //         return [
+    //             'use_cookies' => true,
+    //             'domain' => null, // Don't set domain for localhost
+    //             'secure' => false,
+    //             'sameSite' => 'Lax',
+    //             'httpOnly' => false,
+    //         ];
+    //     }
 
-        // Production same-domain configuration
-        return [
-            'use_cookies' => true,
-            'domain' => null, // Let browser handle domain
-            'secure' => $frontendScheme === 'https',
-            'sameSite' => $frontendScheme === 'https' ? 'Strict' : 'Lax',
-            'httpOnly' => false,
-        ];
-    }
+    //     // Production same-domain configuration
+    //     return [
+    //         'use_cookies' => true,
+    //         'domain' => null, // Let browser handle domain
+    //         'secure' => $frontendScheme === 'https',
+    //         'sameSite' => $frontendScheme === 'https' ? 'Strict' : 'Lax',
+    //         'httpOnly' => false,
+    //     ];
+    // }
 
     public function register(RegisterRequest $request)
     {
@@ -128,42 +128,42 @@ class AuthController extends Controller
 
         $user->save();
 
-        $cookieConfig = $this->getCookieConfig();
+        // $cookieConfig = $this->getCookieConfig();
 
         return response()->json([
             'success' => true,
             'user' => $user,
             'message' => 'Registration successful. Please check your email to verify your account.',
-            'access_token' => $accessToken, // Also include tokens in the response body
+            'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
             'token_type' => 'Bearer',
-        ], 200)
-            ->withCookie(
-                Cookie::make(
-                    'access_token',
-                    $accessToken,
-                    60, // 60 minutes
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            )
-            ->withCookie(
-                Cookie::make(
-                    'refresh_token',
-                    $refreshToken,
-                    60 * 24 * 30, // 30 days
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            );
+        ], 200);
+        // ->withCookie(
+        //     Cookie::make(
+        //         'access_token',
+        //         $accessToken,
+        //         60, // 60 minutes
+        //         '/',
+        //         $cookieConfig['domain'],
+        //         $cookieConfig['secure'],
+        //         $cookieConfig['httpOnly'],
+        //         false,
+        //         $cookieConfig['sameSite']
+        //     )
+        // )
+        // ->withCookie(
+        //     Cookie::make(
+        //         'refresh_token',
+        //         $refreshToken,
+        //         60 * 24 * 30, // 30 days
+        //         '/',
+        //         $cookieConfig['domain'],
+        //         $cookieConfig['secure'],
+        //         $cookieConfig['httpOnly'],
+        //         false,
+        //         $cookieConfig['sameSite']
+        //     )
+        // );
     }
 
     public function login(LoginRequest $request)
@@ -182,7 +182,7 @@ class AuthController extends Controller
         $refreshToken = JWTAuth::fromUser($user, ['exp' => now()->addDays(30)->timestamp, 'type' => 'refresh']);
         $user->save();
 
-        $cookieConfig = $this->getCookieConfig();
+        // $cookieConfig = $this->getCookieConfig();
 
         return response()->json([
             'user' => [
@@ -191,34 +191,36 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'verified' => !is_null($user->email_verified_at),
             ],
+            'access_token' => $accessToken,
+            'refresh_token' => $refreshToken,
             'token_type' => 'Bearer',
-        ])
-            ->withCookie(
-                Cookie::make(
-                    'access_token',
-                    $accessToken,
-                    60,
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            )
-            ->withCookie(
-                Cookie::make(
-                    'refresh_token',
-                    $refreshToken,
-                    60 * 24 * 30,
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            );
+        ]);
+        // ->withCookie(
+        //     Cookie::make(
+        //         'access_token',
+        //         $accessToken,
+        //         60,
+        //         '/',
+        //         $cookieConfig['domain'],
+        //         $cookieConfig['secure'],
+        //         $cookieConfig['httpOnly'],
+        //         false,
+        //         $cookieConfig['sameSite']
+        //     )
+        // )
+        // ->withCookie(
+        //     Cookie::make(
+        //         'refresh_token',
+        //         $refreshToken,
+        //         60 * 24 * 30,
+        //         '/',
+        //         $cookieConfig['domain'],
+        //         $cookieConfig['secure'],
+        //         $cookieConfig['httpOnly'],
+        //         false,
+        //         $cookieConfig['sameSite']
+        //     )
+        // );
     }
 
     public function refresh(Request $request)
@@ -238,39 +240,41 @@ class AuthController extends Controller
             $newAccessToken = JWTAuth::fromUser($user, ['exp' => now()->addDay()->timestamp]);
             $newRefreshToken = JWTAuth::fromUser($user, ['exp' => now()->addDays(30)->timestamp, 'type' => 'refresh']);
 
-            $cookieConfig = $this->getCookieConfig();
+            // $cookieConfig = $this->getCookieConfig();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Tokens refreshed successfully',
+                'access_token' => $newAccessToken,
+                'refresh_token' => $newRefreshToken,
                 'token_type' => 'Bearer',
-            ])
-                ->withCookie(
-                    Cookie::make(
-                        'access_token',
-                        $newAccessToken,
-                        60,
-                        '/',
-                        $cookieConfig['domain'],
-                        $cookieConfig['secure'],
-                        $cookieConfig['httpOnly'],
-                        false,
-                        $cookieConfig['sameSite']
-                    )
-                )
-                ->withCookie(
-                    Cookie::make(
-                        'refresh_token',
-                        $newRefreshToken,
-                        60 * 24 * 30,
-                        '/',
-                        $cookieConfig['domain'],
-                        $cookieConfig['secure'],
-                        $cookieConfig['httpOnly'],
-                        false,
-                        $cookieConfig['sameSite']
-                    )
-                );
+            ]);
+            // ->withCookie(
+            //     Cookie::make(
+            //         'access_token',
+            //         $newAccessToken,
+            //         60,
+            //         '/',
+            //         $cookieConfig['domain'],
+            //         $cookieConfig['secure'],
+            //         $cookieConfig['httpOnly'],
+            //         false,
+            //         $cookieConfig['sameSite']
+            //     )
+            // )
+            // ->withCookie(
+            //     Cookie::make(
+            //         'refresh_token',
+            //         $newRefreshToken,
+            //         60 * 24 * 30,
+            //         '/',
+            //         $cookieConfig['domain'],
+            //         $cookieConfig['secure'],
+            //         $cookieConfig['httpOnly'],
+            //         false,
+            //         $cookieConfig['sameSite']
+            //     )
+            // );
 
         } catch (JWTException $e) {
             return response()->json(['message' => 'Invalid or expired refresh token'], 401);
@@ -347,7 +351,7 @@ class AuthController extends Controller
         $user->remember_token = $refreshToken;
         $user->save();
 
-        $cookieConfig = $this->getCookieConfig();
+        // $cookieConfig = $this->getCookieConfig();
 
 
         return response()->json([
@@ -356,41 +360,115 @@ class AuthController extends Controller
                 'username' => $user->username,
                 'email' => $user->email,
             ],
+            'access_token' => $accessToken,
+            'refresh_token' => $refreshToken,
             'message' => 'Password reset successfully'
-        ], 200)
+        ], 200);
 
-            ->withCookie(
-                Cookie::make(
-                    'access_token',
-                    $accessToken,
-                    60,
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            )
-            ->withCookie(
-                Cookie::make(
-                    'refresh_token',
-                    $refreshToken,
-                    60 * 24 * 30,
-                    '/',
-                    $cookieConfig['domain'],
-                    $cookieConfig['secure'],
-                    $cookieConfig['httpOnly'],
-                    false,
-                    $cookieConfig['sameSite']
-                )
-            );
+        // ->withCookie(
+        //     Cookie::make(
+        //         'access_token',
+        //         $accessToken,
+        //         60,
+        //         '/',
+        //         $cookieConfig['domain'],
+        //         $cookieConfig['secure'],
+        //         $cookieConfig['httpOnly'],
+        //         false,
+        //         $cookieConfig['sameSite']
+        //     )
+        // )
+        // ->withCookie(
+        //     Cookie::make(
+        //         'refresh_token',
+        //         $refreshToken,
+        //         60 * 24 * 30,
+        //         '/',
+        //         $cookieConfig['domain'],
+        //         $cookieConfig['secure'],
+        //         $cookieConfig['httpOnly'],
+        //         false,
+        //         $cookieConfig['sameSite']
+        //     )
+        // );
     }
 
     public function redirectToProvider($provider)
     {
         return Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
     }
+
+    // public function handleProviderCallback(Request $request, $provider)
+    // {
+    //     try {
+    //         $socialUser = Socialite::driver($provider)->stateless()->user();
+
+    //         // Find existing user or create new one
+    //         $user = User::where('email', $socialUser->getEmail())->first();
+
+    //         if (!$user) {
+    //             // Create new user from social data
+    //             $user = new User([
+    //                 'username' => $socialUser->getName() ?? $socialUser->getNickname() ?? explode('@', $socialUser->getEmail())[0],
+    //                 'email' => $socialUser->getEmail(),
+    //                 'password' => Hash::make(Str::random(16)), // Random secure password
+    //             ]);
+
+    //             // Set provider info
+    //             $user->provider = $provider;
+    //             $user->provider_id = $socialUser->getId();
+    //             $user->profileURL = $socialUser->getAvatar();
+    //             $user->email_verified_at = now();
+    //             $user->save();
+    //         }
+
+    //         // Generate tokens consistent with other auth methods
+    //         $accessToken = JWTAuth::fromUser($user, ['exp' => now()->addDays(1)->timestamp]);
+    //         $refreshToken = JWTAuth::fromUser($user, ['exp' => now()->addDays(30)->timestamp, 'type' => 'refresh']);
+
+    //         // Save refresh token if needed
+    //         $user->save();
+
+    //         // $cookieConfig = $this->getCookieConfig();
+
+
+    //         // Return same response format as other auth methods
+    //         return redirect()->away('http://localhost:3000/profile')
+    //             ->withCookie(
+    //                 Cookie::make(
+    //                     'access_token',
+    //                     $accessToken,
+    //                     60,
+    //                     '/',
+    //                     $cookieConfig['domain'],
+    //                     $cookieConfig['secure'],
+    //                     $cookieConfig['httpOnly'],
+    //                     false,
+    //                     $cookieConfig['sameSite']
+    //                 )
+    //             )
+    //             ->withCookie(
+    //                 Cookie::make(
+    //                     'refresh_token',
+    //                     $refreshToken,
+    //                     60 * 24 * 30,
+    //                     '/',
+    //                     $cookieConfig['domain'],
+    //                     $cookieConfig['secure'],
+    //                     $cookieConfig['httpOnly'],
+    //                     false,
+    //                     $cookieConfig['sameSite']
+    //                 )
+    //             );
+    //     } catch (\Exception $e) {
+    //         Log::error('Social login error', [
+    //             'provider' => $provider,
+    //             'error' => $e->getMessage(),
+    //         ]);
+
+    //         return response()->json(['message' => 'Social login failed: ' . $e->getMessage()], 500);
+    //     }
+    // }
 
     public function handleProviderCallback(Request $request, $provider)
     {
@@ -423,44 +501,45 @@ class AuthController extends Controller
             // Save refresh token if needed
             $user->save();
 
-            $cookieConfig = $this->getCookieConfig();
+            // Check if this is an API request or web request
+            if ($request->wantsJson() || $request->expectsJson()) {
+                // Return JSON response for API clients
+                return response()->json([
+                    'success' => true,
+                    'user' => [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                        'verified' => !is_null($user->email_verified_at),
+                    ],
+                    'access_token' => $accessToken,
+                    'refresh_token' => $refreshToken,
+                    'token_type' => 'Bearer',
+                    'redirect_url' => env('FRONTEND_URL', 'http://localhost:3000') . '/profile',
+                ]);
+            } else {
+                // For web requests, redirect with tokens in URL (or you can use session)
+                $redirectUrl = env('FRONTEND_URL', 'http://localhost:3000') . '/profile?' . http_build_query([
+                    'access_token' => $accessToken,
+                    'refresh_token' => $refreshToken,
+                    'token_type' => 'Bearer',
+                ]);
 
+                return redirect()->away($redirectUrl);
+            }
 
-            // Return same response format as other auth methods
-            return redirect()->away('http://localhost:3000/profile')
-                ->withCookie(
-                    Cookie::make(
-                        'access_token',
-                        $accessToken,
-                        60,
-                        '/',
-                        $cookieConfig['domain'],
-                        $cookieConfig['secure'],
-                        $cookieConfig['httpOnly'],
-                        false,
-                        $cookieConfig['sameSite']
-                    )
-                )
-                ->withCookie(
-                    Cookie::make(
-                        'refresh_token',
-                        $refreshToken,
-                        60 * 24 * 30,
-                        '/',
-                        $cookieConfig['domain'],
-                        $cookieConfig['secure'],
-                        $cookieConfig['httpOnly'],
-                        false,
-                        $cookieConfig['sameSite']
-                    )
-                );
         } catch (\Exception $e) {
             Log::error('Social login error', [
                 'provider' => $provider,
                 'error' => $e->getMessage(),
             ]);
 
-            return response()->json(['message' => 'Social login failed: ' . $e->getMessage()], 500);
+            if ($request->wantsJson() || $request->expectsJson()) {
+                return response()->json(['message' => 'Social login failed: ' . $e->getMessage()], 500);
+            } else {
+                // Redirect to login page with error
+                return redirect()->away(env('FRONTEND_URL', 'http://localhost:3000') . '/login?error=' . urlencode('Social login failed'));
+            }
         }
     }
 
