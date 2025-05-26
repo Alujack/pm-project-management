@@ -89,6 +89,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('path');
             $table->string('mime_type');
+             $table->foreignId('issue_id')->nullable()->constrained('issues')->after('projectId');
             $table->unsignedBigInteger('size');
             $table->foreignId('projectId')->constrained('projects')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->comment('User who uploaded the file');

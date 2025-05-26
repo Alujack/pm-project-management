@@ -97,6 +97,8 @@ Route::apiResource('statuses', StatusController::class);
 
 // issue
 Route::apiResource('issues', IssueController::class);
+Route::get('/projects/{projectId}/issues', [IssueController::class, 'getByProject']);
+
 
 //notification
 Route::post('/invitations', [InvitationController::class, 'store']);

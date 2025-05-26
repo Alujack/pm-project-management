@@ -382,6 +382,7 @@ class DatabaseSeeder extends Seeder
                 'mime_type' => 'image/png',
                 'size' => 1024,
                 'projectId' => 1,
+                'issue_id' => 1, // Related to "Setup authentication system" issue
                 'user_id' => 2,
                 'created_at' => Carbon::now()->subDays(7),
                 'updated_at' => Carbon::now()->subDays(7)
@@ -391,7 +392,8 @@ class DatabaseSeeder extends Seeder
                 'path' => 'attachments/product-schema.pdf',
                 'mime_type' => 'application/pdf',
                 'size' => 2048,
-                'projectId' => 2,
+                'projectId' => 1,
+                'issue_id' => 2, // Related to "Create product model" issue
                 'user_id' => 3,
                 'created_at' => Carbon::now()->subDays(3),
                 'updated_at' => Carbon::now()->subDays(3)
@@ -401,16 +403,39 @@ class DatabaseSeeder extends Seeder
                 'path' => 'attachments/homepage-wireframe.sketch',
                 'mime_type' => 'application/octet-stream',
                 'size' => 4096,
-                'projectId' => 1,
+                'projectId' => 3,
+                'issue_id' => 6, // Related to "Create new homepage design" issue
                 'user_id' => 3,
                 'created_at' => Carbon::now()->subDays(2),
                 'updated_at' => Carbon::now()->subDays(2)
+            ],
+            [
+                'name' => 'navigation-prototype.mp4',
+                'path' => 'attachments/navigation-prototype.mp4',
+                'mime_type' => 'video/mp4',
+                'size' => 8192,
+                'projectId' => 2,
+                'issue_id' => 4, // Related to "Design app navigation" issue
+                'user_id' => 4,
+                'created_at' => Carbon::now()->subDays(1),
+                'updated_at' => Carbon::now()->subDays(1)
+            ],
+            [
+                'name' => 'api-specs.json',
+                'path' => 'attachments/api-specs.json',
+                'mime_type' => 'application/json',
+                'size' => 512,
+                'projectId' => 2,
+                'issue_id' => 5, // Related to "Implement API integration" issue
+                'user_id' => 5,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
             ]
         ];
 
         DB::table('attachments')->insert($attachments);
 
-          $invitations = [
+        $invitations = [
             // Pending invitations (accepted = false)
             [
                 'email' => 'pending1@example.com',
@@ -430,7 +455,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-            
+
             // Accepted invitations (accepted = true)
             [
                 'email' => 'janedoe@example.com', // Matches existing user
@@ -450,7 +475,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now()->subDays(10),
                 'updated_at' => now()->subDays(1)
             ],
-            
+
             // Another pending invitation
             [
                 'email' => 'newuser@example.com',
