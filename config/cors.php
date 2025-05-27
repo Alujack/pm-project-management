@@ -9,6 +9,7 @@ return [
 
     'allowed_origins' => [
         'http://localhost:3000',
+        'http://localhost:3003',
         'https://pm-project-management-frontend.vercel.app',
     ],
 
