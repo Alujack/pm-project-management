@@ -170,6 +170,7 @@ class DatabaseSeeder extends Seeder
                 'endDate' => Carbon::now(),
                 'sprintGoal' => 'Complete initial setup and user authentication',
                 'ownerID' => 1,
+                'project_id' => 1, // Add project_id reference
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -179,6 +180,7 @@ class DatabaseSeeder extends Seeder
                 'endDate' => Carbon::now()->addDays(14),
                 'sprintGoal' => 'Implement product catalog and shopping cart',
                 'ownerID' => 2,
+                'project_id' => 1, // Same project as Sprint 1
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -188,6 +190,7 @@ class DatabaseSeeder extends Seeder
                 'endDate' => Carbon::now()->addDays(7),
                 'sprintGoal' => 'Build basic app structure and navigation',
                 'ownerID' => 3,
+                'project_id' => 2, // Different project for mobile app
                 'created_at' => now(),
                 'updated_at' => now()
             ]

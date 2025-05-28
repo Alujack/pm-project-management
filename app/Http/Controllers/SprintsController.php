@@ -216,4 +216,43 @@ class SprintsController extends Controller
             ], 500);
         }
     }
+
+    public function getSprintsByProject($projectID)
+{
+    try {
+        $project = Project::with(['sprints.issues.assignee', 'sprints.issues.status'])->findOrFail($projectID);
+
+        $sprints = $project->sprints->map(function ($sprint) {
+            return [
+                'id' => 'ssp' . $sprint->id,
+                'name' => $sprint->name,
+                'dateRange' => $sprint->startDate->format('d M') . ' - ' . $sprint->endDate->format('d M'),
+                'issueCount' => $sprint->issues->count(),
+                'sprintDetails' => $sprint->sprintGoal,
+                'isComplete' => now()->gt($sprint->endDate),
+                'issues' => $sprint->issues->map(function ($issue) {
+                    return [
+                        'id' => 'SCRUM-' . $issue->id,
+                        'title' => $issue->title,
+                        'status' => $issue->status ? strtoupper($issue->status->name) : 'TO DO',
+                        'assignee' => $issue->assignee ? $issue->assignee->name : null,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'projectName' => $project->name,
+            'projectPath' => $project->name,
+            'sprints' => $sprints,
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to retrieve sprints by project: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
 }

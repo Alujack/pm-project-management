@@ -15,6 +15,7 @@ class Sprint extends Model
         'endDate',
         'sprintGoal',
         'ownerID',
+        'project_id'
     ];
 
     protected $casts = [
@@ -27,6 +28,12 @@ class Sprint extends Model
     {
         return $this->belongsTo(User::class, 'ownerID');
     }
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+    
+    
 
     public function issues()
     {

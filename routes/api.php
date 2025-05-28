@@ -82,15 +82,25 @@ Route::middleware('auth:api')->group(function () {
 
 
     // Sprints api 
-    Route::get('/sprints', [SprintsController::class, 'index']);
-    Route::post('/sprints', [SprintsController::class, 'store']);
-    Route::get('/sprints/{id}', [SprintsController::class, 'show']);
-    Route::put('/sprints/{id}', [SprintsController::class, 'update']);
-    Route::delete('/sprints/{id}', [SprintsController::class, 'destroy']);
-    Route::get('/sprints/{id}/issues', [SprintsController::class, 'issues']);
-    Route::post('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'addIssue']);
-    Route::delete('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'removeIssue']);
+    // Route::get('/sprints', [SprintsController::class, 'index']);
+    // Route::post('/sprints', [SprintsController::class, 'store']);
+    // Route::get('/sprints/{id}', [SprintsController::class, 'show']);
+    // Route::put('/sprints/{id}', [SprintsController::class, 'update']);
+    // Route::delete('/sprints/{id}', [SprintsController::class, 'destroy']);
+    // Route::get('/sprints/{id}/issues', [SprintsController::class, 'issues']);
+    // Route::post('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'addIssue']);
+    // Route::delete('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'removeIssue']);
+    // Route::get('/projects/{projectID}/sprints', [SprintsController::class, 'getSprintsByProject']);
 });
+Route::get('/sprints', [SprintsController::class, 'index']);
+Route::post('/sprints', [SprintsController::class, 'store']);
+Route::get('/sprints/{id}', [SprintsController::class, 'show']);
+Route::put('/sprints/{id}', [SprintsController::class, 'update']);
+Route::delete('/sprints/{id}', [SprintsController::class, 'destroy']);
+Route::get('/sprints/{id}/issues', [SprintsController::class, 'issues']);
+Route::post('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'addIssue']);
+Route::delete('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'removeIssue']);
+Route::get('/sprints/project/{projectID}', [SprintsController::class, 'getSprintsByProject']);
 
 // status
 Route::apiResource('statuses', StatusController::class);

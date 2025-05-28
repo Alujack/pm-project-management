@@ -58,5 +58,10 @@ class Project extends Model
     {
         return $this->hasMany(Attachment::class);
     }
+    public function sprints()
+{
+    return $this->hasMany(Sprint::class, 'project_id');
+}
+
 
 }
