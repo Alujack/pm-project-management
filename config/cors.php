@@ -3,7 +3,7 @@
 
 return [
 
-    'paths' => ['api/*', 'auth/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
+    'paths' => ['api/*', 'auth/*', 'sanctum/csrf-cookie','broadcasting/*', 'broadcasting/auth'],
 
     'allowed_methods' => ['*'],
 
@@ -17,7 +17,9 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    // 'exposed_headers' => [],
+
+    'exposed_headers' => ['Content-Disposition'],
 
     'max_age' => 0,
 

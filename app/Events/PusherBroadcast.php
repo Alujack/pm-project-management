@@ -33,10 +33,16 @@ class PusherBroadcast implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('user.' . $this->mention->mentioned_user_id),
+        $channels = [
             new PresenceChannel('project.' . $this->mention->project_id),
         ];
+
+        // Only add user channel if mentioned_user_id exists (not for invited users)
+        if ($this->mention->mentioned_user_id) {
+            $channels[] = new PrivateChannel('user.' . $this->mention->mentioned_user_id);
+        }
+
+        return $channels;
     }
 
     /**
@@ -58,6 +64,10 @@ class PusherBroadcast implements ShouldBroadcast
             'id' => $this->mention->id,
             'project_id' => $this->mention->project_id,
             'message' => $this->mention->message,
+            'read' => $this->mention->read,
+            'mentioned_user_id' => $this->mention->mentioned_user_id,
+            'mentioned_email' => $this->mention->mentioned_email,
+            'is_invited_user' => $this->mention->isForInvitedUser(),
             'mentioning_user' => [
                 'id' => $this->mention->mentioningUser->id,
                 'name' => $this->mention->mentioningUser->name,

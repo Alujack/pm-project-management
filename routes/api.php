@@ -13,8 +13,12 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\IssueController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\SearchController;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Http\Request;
+use App\Http\Controllers\BroadcastAuthController;
+
+// Broadcasting auth endpoint will now be /api/broadcasting/auth
+Broadcast::routes(['middleware' => ['auth:api']]); // Using API guard
 
 // Auth Routes
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -29,6 +33,7 @@ Route::post('/api/reset-password', [AuthController::class, 'resetPassword']);
 // social login
 Route::get('/auth/{provider}/redirect', [AuthController::class, 'redirectToProvider']);
 Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderCallback']);
+
 
 
 
@@ -48,6 +53,11 @@ Route::get('/mentions/unread', [MentionController::class, 'getUnreadMentions']);
 Route::middleware('auth:api')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'getUserInfo']);
+
+    // Broadcasting auth route
+    Route::post('/broadcasting/auth', function (Request $request) {
+        return Broadcast::auth($request);
+    });
 
     Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin,user')->group(function () {
         Route::get('/projects', [ProjectsController::class, 'index']);
@@ -79,7 +89,20 @@ Route::middleware('auth:api')->group(function () {
     });
 
 
+    // Create a new mention
+    Route::post('/mentions', [MentionController::class, 'store']);
 
+    // Mark a specific mention as read
+    Route::patch('/mentions/{mention}/read', [MentionController::class, 'markAsRead']);
+
+    // Get unread mentions for authenticated user
+    Route::get('/mentions/unread', [MentionController::class, 'getUnreadMentions']);
+
+    // Get all mentions for authenticated user (read and unread)
+    Route::get('/mentions', [MentionController::class, 'getAllMentions']);
+
+    // Mark all mentions as read for authenticated user
+    Route::patch('/mentions/mark-all-read', [MentionController::class, 'markAllAsRead']);
 
     // Sprints api 
     // Route::get('/sprints', [SprintsController::class, 'index']);
@@ -91,7 +114,17 @@ Route::middleware('auth:api')->group(function () {
     // Route::post('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'addIssue']);
     // Route::delete('/sprints/{id}/issues/{issueId}', [SprintsController::class, 'removeIssue']);
     // Route::get('/projects/{projectID}/sprints', [SprintsController::class, 'getSprintsByProject']);
+
+
+    // file attachment
+    Route::post('/attachments', [AttachmentController::class, 'store']);
+    Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
+    Route::get('/projects/{project}/attachments', [AttachmentController::class, 'index']);
 });
+
+
+    Route::get('/attachments/{attachment}', [AttachmentController::class, 'show']);
+
 Route::get('/sprints', [SprintsController::class, 'index']);
 Route::post('/sprints', [SprintsController::class, 'store']);
 Route::get('/sprints/{id}', [SprintsController::class, 'show']);
@@ -116,10 +149,3 @@ Route::get('/invitations/verify/{token}', [InvitationController::class, 'verify'
 // getInvitationsForUser
 Route::get('/invitations', [InvitationController::class, 'getInvitationsForUser']);
 
-
-// file attachment
-Route::post('/attachments', [AttachmentController::class, 'store']);
-Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])
-    ->name('attachments.show');
-Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
-Route::get('/projects/{project}/attachments', [AttachmentController::class, 'index']);

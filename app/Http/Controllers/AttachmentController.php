@@ -37,17 +37,23 @@ class AttachmentController extends Controller
         $attachments = Attachment::where('projectId', $project->id)->get();
         return response()->json($attachments);
     }
+
+    
     public function show(Attachment $attachment)
     {
         if (!Storage::disk('public')->exists($attachment->path)) {
             abort(404);
         }
 
-        return response()->download(
+        return response()->file(
             Storage::disk('public')->path($attachment->path),
-            $attachment->name
+            [
+                'Content-Type' => $attachment->mime_type,
+                'Content-Disposition' => 'inline; filename="' . $attachment->name . '"'
+            ]
         );
     }
+
 
 
     public function destroy(Attachment $attachment)

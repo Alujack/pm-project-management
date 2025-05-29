@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Broadcast;
 
 // Private user channel for individual notifications
 Broadcast::channel('user.{userId}', function ($user, $userId) {
+    \Log::info("Auth attempt", ['user' => $user->id, 'channel' => $userId]);
     return (int) $user->id === (int) $userId;
 });
 
