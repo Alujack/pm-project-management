@@ -224,7 +224,7 @@ class SprintsController extends Controller
 
         $sprints = $project->sprints->map(function ($sprint) {
             return [
-                'id' => 'ssp' . $sprint->id,
+                'id' => $sprint->id,
                 'name' => $sprint->name,
                 'dateRange' => $sprint->startDate->format('d M') . ' - ' . $sprint->endDate->format('d M'),
                 'issueCount' => $sprint->issues->count(),
@@ -232,7 +232,7 @@ class SprintsController extends Controller
                 'isComplete' => now()->gt($sprint->endDate),
                 'issues' => $sprint->issues->map(function ($issue) {
                     return [
-                        'id' => 'SCRUM-' . $issue->id,
+                        'id' => $issue->id,
                         'title' => $issue->title,
                         'status' => $issue->status ? strtoupper($issue->status->name) : 'TO DO',
                         'assignee' => $issue->assignee ? $issue->assignee->name : null,
@@ -243,7 +243,7 @@ class SprintsController extends Controller
 
         return response()->json([
             'projectName' => $project->name,
-            'projectPath' => $project->name,
+            'key' => $project->key,
             'sprints' => $sprints,
         ], 200);
 
