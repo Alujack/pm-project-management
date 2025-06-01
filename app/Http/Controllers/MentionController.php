@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MentionBroadcast;
+use App\Events\MentionReadBroadcast;
+use App\Events\MentionsBulkReadBroadcast;
 use App\Events\PusherBroadcast;
 use App\Models\Mention;
 use App\Models\Project;
@@ -51,8 +54,8 @@ class MentionController extends Controller
             // Load relationships
             $mention->load('mentioningUser', 'project');
 
-            // Broadcast the event
-            event(new PusherBroadcast($mention));
+             // Broadcast the event using Laravel Reverb
+            broadcast(new MentionBroadcast($mention))->toOthers();
 
             return response()->json([
                 'mention' => $mention,
@@ -82,8 +85,8 @@ class MentionController extends Controller
             // Load relationships
             $mention->load('mentioningUser', 'project');
 
-            // Broadcast the mention event
-            event(new PusherBroadcast($mention));
+              // Broadcast the mention event using Laravel Reverb
+            broadcast(new MentionBroadcast($mention))->toOthers();
 
             return response()->json([
                 'mention' => $mention,
@@ -104,8 +107,8 @@ class MentionController extends Controller
 
         $mention->update(['read' => true]);
 
-        // Optionally broadcast read event
-        // event(new MentionRead($mention));
+       // Broadcast mention read event (optional)
+        broadcast(new MentionReadBroadcast($mention))->toOthers();
 
         return response()->json([
             'mention' => $mention,
@@ -148,13 +151,22 @@ class MentionController extends Controller
      */
     public function markAllAsRead()
     {
-        $updatedCount = Mention::where('mentioned_user_id', auth()->id())
-            ->where('read', false)
-            ->update(['read' => true]);
+        $mentions = Mention::where('mentioned_user_id', auth()->id())
+        ->where('read', false)
+        ->get(); // Get mentions before updating
 
-        return response()->json([
-            'message' => 'All mentions marked as read',
-            'updated_count' => $updatedCount
-        ]);
+    $updatedCount = Mention::where('mentioned_user_id', auth()->id())
+        ->where('read', false)
+        ->update(['read' => true]);
+
+    // Broadcast bulk read event
+    if ($updatedCount > 0) {
+        broadcast(new MentionsBulkReadBroadcast(auth()->id(), $mentions))->toOthers();
+    }
+
+    return response()->json([
+        'message' => 'All mentions marked as read',
+        'updated_count' => $updatedCount
+    ]);
     }
 }

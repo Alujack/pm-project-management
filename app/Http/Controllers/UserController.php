@@ -71,11 +71,10 @@ class UserController extends Controller
     public function getUsersForMention(Request $request, $projectId)
     {
         $search = $request->query('search', '');
-
+    
         // Get the project
         $project = Project::findOrFail($projectId);
-
-
+    
         // Get invited users who have accepted the invitation
         $users = Invitation::where('project_id', $projectId)
             ->where('accepted', true)
@@ -85,13 +84,16 @@ class UserController extends Controller
             ->select('email')
             ->get()
             ->map(function ($invitation) {
+                // Find user by email
+                $user = User::where('email', $invitation->email)->first();
+                
                 return [
-                    'id' => null, // or use a different identifier
+                    'id' => $user ? $user->id : null,
                     'name' => $invitation->email,
                     'email' => $invitation->email
                 ];
             });
-
+    
         return response()->json($users);
     }
 

@@ -12,7 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PusherBroadcast implements ShouldBroadcast
+class MentionBroadcast implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -74,5 +74,15 @@ class PusherBroadcast implements ShouldBroadcast
             ],
             'created_at' => $this->mention->created_at,
         ];
+    }
+
+    /**
+     * Determine if this event should be broadcast.
+     */
+    public function shouldBroadcast(): bool
+    {
+        // Add any conditional logic here if needed
+        // For example, only broadcast if the mention is not read
+        return true;
     }
 }
