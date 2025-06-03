@@ -6,13 +6,14 @@ use App\Models\Mention;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
+
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PusherBroadcast implements ShouldBroadcast
+class PusherBroadcast implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -31,19 +32,15 @@ class PusherBroadcast implements ShouldBroadcast
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
+    // In PusherBroadcast.php
     public function broadcastOn(): array
     {
-        $channels = [
-            new PresenceChannel('project.' . $this->mention->project_id),
+        return [
+            new Channel('project.' . $this->mention->project_id),
+            new Channel('user.' . $this->mention->mentioned_user_id),
         ];
-
-        // Only add user channel if mentioned_user_id exists (not for invited users)
-        if ($this->mention->mentioned_user_id) {
-            $channels[] = new PrivateChannel('user.' . $this->mention->mentioned_user_id);
-        }
-
-        return $channels;
     }
+
 
     /**
      * The event's broadcast name.

@@ -10,10 +10,15 @@ class Invitation extends Model
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['email', 'username', 'project_id', 'token', 'accepted'];
+    protected $fillable = ['email', 'username', 'project_id', 'user_id', 'token', 'accepted'];
 
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+      public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

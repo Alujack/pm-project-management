@@ -10,15 +10,15 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\SprintsController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\IssueController;
-use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Http\Request;
-use App\Http\Controllers\BroadcastAuthController;
 
-// Broadcasting auth endpoint will now be /api/broadcasting/auth
-Broadcast::routes(['middleware' => ['auth:api']]); // Using API guard
+// private channel api
+Broadcast::routes(['middleware' => ['auth:api']]);
+
 
 // Auth Routes
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -43,21 +43,12 @@ Route::get('/projects/{projectId}/users-for-mention', [UserController::class, 'g
 Route::get('/projects/{projectId}/invited-users', [UserController::class, 'getInvitedUsers']);
 Route::get('/all-users', [UserController::class, 'index']);
 
-// Mention routes
-Route::post('/mentions', [MentionController::class, 'store']);
-Route::patch('/mentions/{mention}/read', [MentionController::class, 'markAsRead']);
-Route::get('/mentions/unread', [MentionController::class, 'getUnreadMentions']);
 
 
 // Protected Routes (require authentication)
 Route::middleware('auth:api')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'getUserInfo']);
-
-    // Broadcasting auth route
-    Route::post('/broadcasting/auth', function (Request $request) {
-        return Broadcast::auth($request);
-    });
 
     Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin,user')->group(function () {
         Route::get('/projects', [ProjectsController::class, 'index']);

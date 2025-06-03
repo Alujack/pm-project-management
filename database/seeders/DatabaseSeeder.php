@@ -211,8 +211,8 @@ class DatabaseSeeder extends Seeder
                 'sprintID' => 1,
                 'projectID' => 1,
                 'userID' => 1,
-                'assigneeID' => 2,
-                'assignerID' => 1,
+                'assigneeID' => 2,  // Keep original field name
+                'assignerID' => 1,  // Keep original field name
                 'priority' => 'high',
                 'created_at' => now(),
                 'updated_at' => now()
@@ -444,6 +444,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'pending1@example.com',
                 'username' => 'pending_user1',
                 'project_id' => 1,
+                'user_id' => null, // No user ID yet (not registered)
                 'token' => Str::random(32),
                 'accepted' => false,
                 'created_at' => now(),
@@ -451,8 +452,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'email' => 'pending2@example.com',
-                'username' => null, // No username set yet
+                'username' => null,
                 'project_id' => 2,
+                'user_id' => null, // No user ID yet (not registered)
                 'token' => Str::random(32),
                 'accepted' => false,
                 'created_at' => now(),
@@ -461,29 +463,32 @@ class DatabaseSeeder extends Seeder
 
             // Accepted invitations (accepted = true)
             [
-                'email' => 'janedoe@example.com', // Matches existing user
+                'email' => 'janedoe@example.com', // Matches existing user (ID 3)
                 'username' => 'janedoe',
                 'project_id' => 1,
+                'user_id' => 3, // Jane Doe's user ID
                 'token' => Str::random(32),
                 'accepted' => true,
                 'created_at' => now()->subDays(5),
                 'updated_at' => now()->subDays(2)
             ],
             [
-                'email' => 'bobsmith@example.com', // Matches existing user
+                'email' => 'bobsmith@example.com', // Matches existing user (ID 4)
                 'username' => 'bobsmith',
                 'project_id' => 3,
+                'user_id' => 4, // Bob Smith's user ID
                 'token' => Str::random(32),
                 'accepted' => true,
                 'created_at' => now()->subDays(10),
                 'updated_at' => now()->subDays(1)
             ],
 
-            // Another pending invitation
+            // Another pending invitation for an existing user
             [
-                'email' => 'newuser@example.com',
-                'username' => null,
+                'email' => 'alice@example.com', // Matches existing user (ID 5)
+                'username' => 'alicegreen',
                 'project_id' => 2,
+                'user_id' => 5, // Alice Green's user ID
                 'token' => Str::random(32),
                 'accepted' => false,
                 'created_at' => now()->subDays(3),

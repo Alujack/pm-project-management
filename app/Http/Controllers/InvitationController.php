@@ -26,6 +26,7 @@ class InvitationController extends Controller
         // get username from User model than add to invitation table
         $user = User::where('email', $request->email)->first();
         $username = $user ? $user->username : null;
+        $userBeingInvitedID = $user ? $user->id : null;
         
 
         if ($existingInvitation) {
@@ -48,10 +49,10 @@ class InvitationController extends Controller
         }
 
         // Create a new invitation if none exists
-        // add user username to invitation table
         $invitation = Invitation::create([
             'email' => $request->email,
             'username' => $username,
+            'user_id' => $userBeingInvitedID, // Assuming the user is authenticated
             'project_id' => $request->project_id,
             'token' => Str::random(60),
             'accepted' => false,

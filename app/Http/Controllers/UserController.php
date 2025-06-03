@@ -82,12 +82,12 @@ class UserController extends Controller
             ->where(function ($query) use ($search) {
                 $query->where('email', 'like', "%{$search}%");
             })
-            ->select('email')
+            ->select('email', 'username','user_id', 'project_id', 'accepted')
             ->get()
             ->map(function ($invitation) {
                 return [
-                    'id' => null, // or use a different identifier
-                    'name' => $invitation->email,
+                    'id' => $invitation->user_id, // or use a different identifier
+                    'name' => $invitation->username,
                     'email' => $invitation->email
                 ];
             });

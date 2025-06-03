@@ -7,6 +7,7 @@ use App\Models\Mention;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Invitation;
+use App\Notifications\UserMentionedNotification;
 use Illuminate\Http\Request;
 
 class MentionController extends Controller
@@ -18,7 +19,7 @@ class MentionController extends Controller
     {
         $validated = $request->validate([
             'project_id' => 'required|exists:projects,id',
-            'mentioned_user_id' => 'required',
+            'mentioned_user_id' => 'exists:users,id',
             'message' => 'required|string|max:500',
             'is_invited_user' => 'boolean',
         ]);
@@ -26,70 +27,44 @@ class MentionController extends Controller
         // Get the project
         $project = Project::findOrFail($validated['project_id']);
 
-        // Handle mentions for invited users
-        if (isset($validated['is_invited_user']) && $validated['is_invited_user']) {
-            // Find the invitation
-            $invitation = Invitation::where('id', $validated['mentioned_user_id'])
-                ->where('project_id', $validated['project_id'])
-                ->where('accepted', false)
-                ->first();
+        // Find the mentioned user
+        $mentionedUser = User::findOrFail($validated['mentioned_user_id']);
 
-            if (!$invitation) {
-                return response()->json(['error' => 'Invalid invitation or user has already accepted'], 404);
-            }
+        // Check if the user was invited and accepted the invitation
+        $isValidInvitation = Invitation::where('project_id', $validated['project_id'])
+            ->where('email', $mentionedUser->email)
+            ->where('accepted', true)
+            ->exists();
 
-            // For invited users, we'll store the email instead of user_id
-            $mention = Mention::create([
-                'project_id' => $validated['project_id'],
-                'mentioning_user_id' => auth()->id(),
-                'mentioned_user_id' => null,
-                'mentioned_email' => $invitation->email,
-                'message' => $validated['message'],
-                'read' => false,
-            ]);
-
-            // Load relationships
-            $mention->load('mentioningUser', 'project');
-
-            // Broadcast the event
-            event(new PusherBroadcast($mention));
-
+        if ($validated['is_invited_user'] && !$isValidInvitation) {
             return response()->json([
-                'mention' => $mention,
-                'message' => 'Mention created successfully'
-            ], 201);
+                'message' => 'The mentioned user has not accepted the invitation for this project'
+            ], 403);
         }
-        // Handle mentions for regular users
-        else {
-            // Find the mentioned user
-            $mentionedUser = User::findOrFail($validated['mentioned_user_id']);
 
-            // Check if mentioned user is part of the project
-            if (!$project->users()->where('users.id', $mentionedUser->id)->exists()) {
-                return response()->json(['error' => 'Mentioned user is not part of this project'], 403);
-            }
+        // Create mention
+        $mention = Mention::create([
+            'project_id' => $validated['project_id'],
+            'mentioning_user_id' => auth()->id(),
+            'mentioned_user_id' => $validated['mentioned_user_id'],
+            'mentioned_email' => $mentionedUser->email,
+            'message' => $validated['message'],
+            'read' => false,
+        ]);
 
-            // Create mention
-            $mention = Mention::create([
-                'project_id' => $validated['project_id'],
-                'mentioning_user_id' => auth()->id(),
-                'mentioned_user_id' => $validated['mentioned_user_id'],
-                'mentioned_email' => $mentionedUser->email,
-                'message' => $validated['message'],
-                'read' => false,
-            ]);
+        // Load relationships
+        $mention->load('mentioningUser', 'project');
 
-            // Load relationships
-            $mention->load('mentioningUser', 'project');
+        // notfitication after user mentioned
+        $mentionedUser->notify(new UserMentionedNotification($mention));
 
-            // Broadcast the mention event
-            event(new PusherBroadcast($mention));
+        // Broadcast the mention event
+        event(new PusherBroadcast($mention));
 
-            return response()->json([
-                'mention' => $mention,
-                'message' => 'Mention created successfully'
-            ], 201);
-        }
+        return response()->json([
+            'mention' => $mention,
+            'message' => 'Mention created successfully'
+        ], 201);
     }
 
     /**
@@ -120,7 +95,7 @@ class MentionController extends Controller
     {
         $unreadMentions = Mention::where('mentioned_user_id', auth()->id())
             ->where('read', false)
-            ->with(['mentioningUser:id', 'project:id'])
+            ->with(['mentioningUser:id,email', 'project:id'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -136,7 +111,7 @@ class MentionController extends Controller
     public function getAllMentions()
     {
         $mentions = Mention::where('mentioned_user_id', auth()->id())
-            ->with(['mentioningUser:id', 'project:id'])
+            ->with(['mentioningUser:id,email', 'project:id'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
