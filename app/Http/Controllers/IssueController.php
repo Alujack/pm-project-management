@@ -11,19 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class IssueController extends Controller
 {
-    // Validation rules
-    protected array $storeRules = [
-        'title' => 'required|string|max:255',
-        'description' => 'required|string',
-        'startDate' => 'required|date',
-        'endDate' => 'nullable|date|after_or_equal:startDate',
-        'duration' => 'nullable|integer',
-        'statusID' => 'required|exists:statuses,id',
-        'sprintID' => 'nullable|exists:sprints,id',
-        'projectID' => 'required|exists:projects,id',
-        'userID' => 'required|exists:users,id',
-        'priority' => 'required|in:low,medium,high,critical',
-    ];
+   
 
     protected array $updateRules = [
         'title' => 'sometimes|string|max:255',
@@ -62,14 +50,28 @@ class IssueController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate($this->storeRules);
-
-        $issue = DB::transaction(function () use ($validated) {
-            return Issue::create($validated);
+        $data = $request->only([
+            'title',
+            'description',
+            'startDate',
+            'endDate',
+            'duration',
+            'statusID',
+            'sprintID',
+            'projectID',
+            'userID',
+            'assigneeID',
+            'assignerID',
+            'priority',
+        ]);
+    
+        $issue = DB::transaction(function () use ($data) {
+            return Issue::create($data);
         });
-
+    
         return response()->json($issue->load($this->withRelations), 201);
     }
+    
 
     /**
      * Get specific issue

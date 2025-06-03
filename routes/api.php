@@ -74,6 +74,7 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/projects/{id}/members/{userId}', [ProjectsController::class, 'removeProjectMember']);
         Route::get('/user/projects', [ProjectsController::class, 'getUserProjects']);
         Route::get('/projects/{projectId}/full', [ProjectsController::class, 'showWithRelations']);
+        Route::get('/projects/{projectId}/sprints/isssues/', [ProjectsController::class, 'ShowPrenttoChildren']);
 
         // api dashboard
         Route::get('/dashboard/summary', [DashboardController::class, 'dashboardSummary']);

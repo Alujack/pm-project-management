@@ -345,4 +345,22 @@ class ProjectsController extends Controller
 
         return response()->json($project);
     }
+    public function ShowPrenttoChildren($projectId){
+        $project = Project::with([
+            'owner',
+            'sprints.issues',
+            'sprints.issues.status',
+            'sprints.issues.user',
+            'sprints.issues.assignee',
+            'sprints.issues.assigner',
+        ])->find($projectId);
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project not found'
+            ], 404);
+        }
+
+        return response()->json($project);
+    }
 }

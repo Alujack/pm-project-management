@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Sprint;
 use App\Models\Issue;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
 class SprintsController extends Controller
@@ -45,7 +46,8 @@ class SprintsController extends Controller
                 'startDate' => 'required|date',
                 'endDate' => 'required|date|after_or_equal:startDate',
                 'sprintGoal' => 'nullable|string',
-                'ownerID' => 'required'
+                'ownerID' => 'required',
+                'project_id'=> 'required'
             ]);
 
             if ($validator->fails()) {
@@ -216,18 +218,23 @@ class SprintsController extends Controller
             ], 500);
         }
     }
-
     public function getSprintsByProject($projectID)
 {
     try {
         $project = Project::with(['sprints.issues.assignee', 'sprints.issues.status'])->findOrFail($projectID);
 
         $sprints = $project->sprints->map(function ($sprint) {
+            // Count issues by status name (normalized to uppercase)
+            $issueStatusCounts = $sprint->issues->groupBy(function ($issue) {
+                return $issue->status ? strtoupper($issue->status->name) : 'TO DO';
+            })->map->count();
+
             return [
                 'id' => $sprint->id,
                 'name' => $sprint->name,
                 'dateRange' => $sprint->startDate->format('d M') . ' - ' . $sprint->endDate->format('d M'),
                 'issueCount' => $sprint->issues->count(),
+                'issueStatusCounts' => $issueStatusCounts,
                 'sprintDetails' => $sprint->sprintGoal,
                 'isComplete' => now()->gt($sprint->endDate),
                 'issues' => $sprint->issues->map(function ($issue) {
@@ -235,17 +242,17 @@ class SprintsController extends Controller
                         'id' => $issue->id,
                         'title' => $issue->title,
                         'status' => $issue->status ? strtoupper($issue->status->name) : 'TO DO',
-                        'assignee' => $issue->assignee ? $issue->assignee->name : null,
+                        'assignee' => $issue->assignee ? $issue->assignee->toArray() : null,
                     ];
                 }),
             ];
         });
 
-        return response()->json([
-            'projectName' => $project->name,
-            'key' => $project->key,
+        $projectData = array_merge($project->getAttributes(), [
             'sprints' => $sprints,
-        ], 200);
+        ]);
+
+        return response()->json($projectData, 200);
 
     } catch (\Exception $e) {
         return response()->json([
@@ -254,5 +261,9 @@ class SprintsController extends Controller
         ], 500);
     }
 }
+
+    
+    
+    
 
 }
