@@ -95,7 +95,7 @@ class MentionController extends Controller
     {
         $unreadMentions = Mention::where('mentioned_user_id', auth()->id())
             ->where('read', false)
-            ->with(['mentioningUser:id,email', 'project:id'])
+            ->with(['mentioningUser:id,email,avatar,username', 'project:id'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -111,7 +111,7 @@ class MentionController extends Controller
     public function getAllMentions()
     {
         $mentions = Mention::where('mentioned_user_id', auth()->id())
-            ->with(['mentioningUser:id,email', 'project:id'])
+            ->with(['mentioningUser:id,email,avatar,username', 'project:id'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
