@@ -76,4 +76,8 @@ class Issue extends Model
     {
         return $this->hasMany(Attachment::class);
     }
+
+    public function chats(){
+        return $this->hasMany(Chat::class)->latest();
+    }
 }

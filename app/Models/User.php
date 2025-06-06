@@ -103,4 +103,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Project::class, 'members', 'userID', 'projectID')
             ->withPivot('role');
     }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class);
+    }
 }

@@ -95,6 +95,13 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users')->comment('User who uploaded the file');
             $table->timestamps();
         });
+        Schema::create('chats', function (Blueprint $table){
+            $table->id();
+            $table->foreignId('issue_id')->constrained('issues')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->text('message');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -102,6 +109,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        Schema::dropIfExists('chats');
         Schema::dropIfExists('attachments');
         Schema::dropIfExists('mentions');
         Schema::dropIfExists('comments');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PusherController;
 use App\Http\Controllers\MentionController;
 use App\Http\Controllers\UserController;
@@ -81,6 +82,11 @@ Route::middleware('auth:api')->group(function () {
     });
 
 
+    // Routes (in your routes/api.php or routes/web.php)
+    Route::get('/projects/{project}/issues/{issue}/chats', [ChatController::class, 'getMessages']);
+    Route::post('/projects/{project}/issues/{issue}/chats', [ChatController::class, 'sendMessage']);
+
+
     // Create a new mention
     Route::post('/mentions', [MentionController::class, 'store']);
 
@@ -115,7 +121,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
-    Route::get('/attachments/{attachment}', [AttachmentController::class, 'show']);
+Route::get('/attachments/{attachment}', [AttachmentController::class, 'show']);
 
 Route::get('/sprints', [SprintsController::class, 'index']);
 Route::post('/sprints', [SprintsController::class, 'store']);
