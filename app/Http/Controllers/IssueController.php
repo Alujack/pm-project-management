@@ -23,6 +23,8 @@ class IssueController extends Controller
         'sprintID' => 'nullable|exists:sprints,id',
         'projectID' => 'sometimes|exists:projects,id',
         'priority' => 'sometimes|in:low,medium,high,critical',
+        'assigneeID' => 'nullable|exists:users,id',
+        'assignerID' => 'nullable|exists:users,id',
     ];
 
     // Relationships to eager load
@@ -86,6 +88,7 @@ class IssueController extends Controller
      */
     public function update(Request $request, Issue $issue): JsonResponse
     {
+        $validated = $request->validate($this->updateRules);
         $user = User::findOrFail($request->assigneeID);
         dump($user);
         DB::transaction(function () use ($issue, $user) {
