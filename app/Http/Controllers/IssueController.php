@@ -86,11 +86,19 @@ class IssueController extends Controller
      */
     public function update(Request $request, Issue $issue): JsonResponse
     {
-        $validated = $request->validate($this->updateRules);
-
+        $user = User::findOrFail($request->assigneeID);
+        dump($user);
+        DB::transaction(function () use ($issue, $user) {
+        $issue->update([
+            'assigneeID' => $user->id,
+            'assignerID' => auth()->id() ?? $issue->userID
+        ]);
+        });
+        $user->notify(new \App\Notifications\AssigneeNotification($issue, $issue->userID));
         DB::transaction(function () use ($issue, $validated) {
             $issue->update($validated);
         });
+       
 
         return response()->json($issue->load($this->withRelations));
     }
