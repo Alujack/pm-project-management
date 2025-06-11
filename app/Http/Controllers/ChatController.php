@@ -23,7 +23,7 @@ class ChatController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return response()->json($issue->chats()->with('user')->latest()->get());
+        return response()->json($issue->chats()->with('user')->get());
     }
 
     public function sendMessage(Request $request, Project $project, Issue $issue)

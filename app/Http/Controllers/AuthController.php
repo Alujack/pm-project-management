@@ -293,6 +293,7 @@ public function refresh(Request $request)
                 'username' => $user->username,
                 'email' => $user->email,
                 'gender' => $user->gender,
+                'avatar' => $user->avatar,
                 'systemRole' => $userRole,
                 'verified' => !is_null($user->email_verified_at),
                 'accessibleEndpoints' => $permission[$userRole] ?? [],

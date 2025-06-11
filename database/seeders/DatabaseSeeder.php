@@ -124,7 +124,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'E-commerce Platform',
                 'key' => 'ECOM',
-                'accessibility' => 'private',
+                'accessibility' => 'public',
                 'ownerID' => 1,
                 'teamID' => 1,
                 'created_at' => now(),
@@ -142,7 +142,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Website Redesign',
                 'key' => 'WEB',
-                'accessibility' => 'private',
+                'accessibility' => 'public',
                 'ownerID' => 3,
                 'teamID' => 2,
                 'created_at' => now(),
@@ -160,7 +160,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Data Analytics Dashboard',
                 'key' => 'DASH',
-                'accessibility' => 'private',
+                'accessibility' => 'public',
                 'ownerID' => 5,
                 'teamID' => 2,
                 'created_at' => now(),
